@@ -1,0 +1,8 @@
+github.com/garyburd/redigo v1.0.1-0.20161024014702-80f7de34463b h1:tkMSUXKntE9nZcEukMvlDLlQyEBtRa2kytUf+iNhm+g=
+github.com/garyburd/redigo v1.0.1-0.20161024014702-80f7de34463b/go.mod h1:NR3MbYisc3/PwhQ00EMzDiPmrwpPxAn5GI05/YaO1SY=
+github.com/garyburd/redigo v1.6.2 h1:yE/pwKCrbLpLpQICzYTeZ7JsTA/C53wFTJHaEtRqniM=
+github.com/garyburd/redigo v1.6.2/go.mod h1:NR3MbYisc3/PwhQ00EMzDiPmrwpPxAn5GI05/YaO1SY=
+github.com/imroc/log v0.0.0-20161011005528-c6167dd819ca h1:fBSiLT6PAIF5/YjQAem80pHY2yKL+JE2a5c/OSEVbkk=
+github.com/imroc/log v0.0.0-20161011005528-c6167dd819ca/go.mod h1:lzkY3KDB040WIUg1BE2GER6BnOXnvvCKEmx0GYuM5n4=
+github.com/imroc/log v0.0.0-20170315091843-0c5f50a587ef h1:1n4ovXP1NPTzVEuf2yllvLDwhzSEiT8H7ubvvhayEaI=
+github.com/imroc/log v0.0.0-20170315091843-0c5f50a587ef/go.mod h1:lzkY3KDB040WIUg1BE2GER6BnOXnvvCKEmx0GYuM5n4=

@@ -1,0 +1,16 @@
+# Created by .ignore support plugin (hsz.mobi)
+
+# Project
+bin
+out
+
+# Jetbrains
+.idea
+
+# Cmake cache
+*.log
+*.logcache
+
+msc/*
+!msc/res
+!msc/msc.cfg
