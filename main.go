@@ -30,6 +30,10 @@ Usage: xftts [options]
     -h                          查看帮助 
 `
 
+const (
+	DefTTSResPath = "fo|res/tts/xiaofeng.jet;fo|res/tts/common.jet"
+)
+
 func main() {
 	var (
 		opts     = &server.Options{}
@@ -40,9 +44,28 @@ func main() {
 		logLevel string
 	)
 
-	// TODO slim TTSParmas
-	flag.StringVar(&opts.TTSParams, "tp", "engine_type = local, voice_name = xiaofeng, text_encoding = UTF8, tts_res_path = fo|res/tts/xiaofeng.jet;fo|res/tts/common.jet, sample_rate = 16000, speed = 50, volume = 50, pitch = 50, rdn = 2", "TTS合成参数")
-	flag.StringVar(&opts.LoginParams, "lp", "appid = 5d57f7c2, work_dir = .", "登录参数")
+	// TTSParmas
+	flag.StringVar(&opts.TTSParams.Params, "tp", "", "TTS合成参数")
+	flag.StringVar(&opts.EngineType, "engine", "local", "引擎类型")
+	flag.StringVar(&opts.VoiceName, "voice", "", "在线引擎发音人")
+	flag.StringVar(&opts.TTSResPath, "tts-res", DefTTSResPath, "离线资源所在路径")
+	flag.IntVar(&opts.Speed, "speed", 50, "语速")
+	flag.IntVar(&opts.Volume, "volume", 50, "音量")
+	flag.IntVar(&opts.Pitch, "pitch", 50, "音调")
+	flag.IntVar(&opts.Rdn, "rdn", 2, "合成音频数字发音")
+	flag.IntVar(&opts.SampleRate, "rate", 16000, "合成音频采样率")
+	flag.StringVar(&opts.TextEncoding, "encoding", "UTF8", "文本编码格式")
+	flag.StringVar(&opts.Aue, "aue", "", "音频编码格式和压缩等级")
+	flag.StringVar(&opts.TTP, "ttp", "", "文本类型")
+	flag.StringVar(&opts.SpeedIncrease, "inc", "", "语速增强")
+
+	// LoginParams
+	flag.StringVar(&opts.LoginParams.Params, "lp", "", "登录参数")
+	flag.StringVar(&opts.Appid, "appid", "5d57f7c2", "XF 提供的 SDK-Appid")
+	flag.StringVar(&opts.EngineMode, "offmode", "", "离线引擎启动模式")
+	flag.StringVar(&opts.XXXResPath, "xxx_res_path", "", "离线引擎所在路径。")
+
+	// Options
 	flag.StringVar(&opts.RedisAddr, "r", ":6379", "redis连接地址")
 	flag.StringVar(&opts.RedisPass, "rp", "", "redis连接密码")
 	flag.StringVar(&opts.OutDir, "d", "", "音频输出目录")
