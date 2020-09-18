@@ -2,7 +2,7 @@ package server
 
 import (
 	"fmt"
-	"github.com/imroc/log"
+	"github.com/astaxie/beego/logs"
 	"strconv"
 	"xftts/xf"
 )
@@ -91,15 +91,15 @@ func New(opts *Options) *Server {
 }
 
 func (s *Server) Once(txt string, desPath string) error {
-	log.Debug(fmt.Sprintf("tts:%s", s.opts.TTSParams.Format()))
-	log.Debug(fmt.Sprintf("login:%s", s.opts.LoginParams.Format()))
+	logs.Info(fmt.Sprintf("tts:%s", s.opts.TTSParams.Format()))
+	logs.Info(fmt.Sprintf("login:%s", s.opts.LoginParams.Format()))
 	xf.SetTTSParams(s.opts.TTSParams.Format())
 	err := xf.Login(s.opts.LoginParams.Format())
 
 	if err != nil {
 		return err
 	}
-	log.Debug(fmt.Sprintf("txt:%s,des_path:%s", txt, desPath))
+	logs.Info(fmt.Sprintf("txt:%s,des_path:%s", txt, desPath))
 	err = xf.TextToSpeech(txt, desPath)
 	if err != nil {
 		return err

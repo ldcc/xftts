@@ -3,9 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/imroc/log"
-	"os"
-	"strings"
+	"github.com/astaxie/beego/logs"
 	"xftts/server"
 )
 
@@ -77,37 +75,23 @@ func main() {
 		return
 	}
 
-	err := configureLog(logFile, logLevel)
+	err := configureLog()
 	if err != nil {
-		log.Debug(fmt.Errorf("日志配置失败:%v", err))
+		logs.Error(fmt.Errorf("日志配置失败:%v", err))
 		return
 	}
 
 	var srv = server.New(opts)
 
-	log.Debug(fmt.Sprintf("合成文本:%s,输出:%s", txt, out))
+	logs.Info(fmt.Sprintf("合成文本:%s,输出:%s", txt, out))
 	err = srv.Once(txt, out)
 	if err != nil {
-		log.Debug(fmt.Errorf("%v", err))
+		logs.Info(fmt.Errorf("%v", err))
 	}
 }
 
-func configureLog(logFile, logLevel string) error {
-	var debug bool
-
-	switch strings.ToLower(logLevel) {
-	case "debug":
-		debug = true
-	case "info":
-		debug = false
-	}
-
-	file, err := os.OpenFile(logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		return err
-	}
-
-	log.SetDebug(debug)
-	log.SetOutput(file)
-	return nil
+func configureLog() (err error) {
+	//设置logger
+	err = logs.SetLogger(logs.AdapterMultiFile, `{"filename":"logs/logger.log", "separate":["error", "warning","info"],"level":3}`)
+	return
 }
