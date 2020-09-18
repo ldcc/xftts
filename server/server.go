@@ -20,14 +20,13 @@ type Options struct {
 	Level     int    // 音频生成速度级别，越快越耗CPU，级别1~10,数字越小速度越快
 	RedisAddr string
 	RedisPass string
-	Speed     int
 }
 
 type TTSParams struct {
 	Params        string // TTS 合成参数，如果该值被指定，则忽略所有其它字段
-	EngineType    string // 引擎类型。cloud：在线引擎，local：离线引擎
-	VoiceName     string // 使用在线引擎时指定的发音人，可在`控制台 -> 发音人授权管理`确认
-	TTSResPath    string // 离线资源所在路径。 fo|[path]|[offset]|[length]
+	EngineType    string // 引擎类型，cloud：在线引擎，local：离线引擎
+	VoiceName     string // 发音人，可在`控制台 -> 发音人授权管理`确认
+	TTSResPath    string // 离线资源所在路径，fo|[path]|[offset]|[length]
 	Speed         int    // 语速，取值范围：[0, 100]，默认 50
 	Volume        int    // 音量，取值范围：[0, 100]，默认 50
 	Pitch         int    // 音调，取值范围：[0, 100]，默认 50
@@ -92,14 +91,15 @@ func New(opts *Options) *Server {
 }
 
 func (s *Server) Once(txt string, desPath string) error {
-	log.Debug("tts:%s,login:%s", s.opts.TTSParams, s.opts.LoginParams)
+	log.Debug(fmt.Sprintf("tts:%s", s.opts.TTSParams.Format()))
+	log.Debug(fmt.Sprintf("login:%s", s.opts.LoginParams.Format()))
 	xf.SetTTSParams(s.opts.TTSParams.Format())
 	err := xf.Login(s.opts.LoginParams.Format())
 
 	if err != nil {
 		return err
 	}
-	log.Debug("txt:%s,des_path:%s", txt, desPath)
+	log.Debug(fmt.Sprintf("txt:%s,des_path:%s", txt, desPath))
 	err = xf.TextToSpeech(txt, desPath)
 	if err != nil {
 		return err

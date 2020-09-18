@@ -15,19 +15,15 @@ Usage: xftts [options]
     -tp <param>                 TTS合成参数[有默认值]
     -lp <param>                 登录参数[有默认值]
 合成服务模式选项:
-    -d <dir>                    音频保存的目录 
-    -b <dir>                    音频备份的目录 
-    -s <digit>                  合成速度级别(1-10),数值越小速度越快，越耗CPU[默认为1]
-    -r <addr>                   redis连接地址
-    -rp <pass>                  redis密码
-合成选项:
+    -d <dir>                    音频保存的目录
+    -b <dir>                    音频备份的目录
     -t <text>                	待合成的文本
     -o <file>               	音频输出路径
 日志选项:
     -l <file>                   日志输出路径[默认./xftts.log]
     -ll <level>                 日志输出级别(debug,info,warn,error)
 其他:
-    -h                          查看帮助 
+    -h                          查看帮助
 `
 
 const (
@@ -47,7 +43,7 @@ func main() {
 	// TTSParmas
 	flag.StringVar(&opts.TTSParams.Params, "tp", "", "TTS合成参数")
 	flag.StringVar(&opts.EngineType, "engine", "local", "引擎类型")
-	flag.StringVar(&opts.VoiceName, "voice", "", "在线引擎发音人")
+	flag.StringVar(&opts.VoiceName, "voice", "xiaofeng", "在线引擎发音人")
 	flag.StringVar(&opts.TTSResPath, "tts-res", DefTTSResPath, "离线资源所在路径")
 	flag.IntVar(&opts.Speed, "speed", 50, "语速")
 	flag.IntVar(&opts.Volume, "volume", 50, "音量")
@@ -66,12 +62,8 @@ func main() {
 	flag.StringVar(&opts.XXXResPath, "xxx_res_path", "", "离线引擎所在路径。")
 
 	// Options
-	flag.StringVar(&opts.RedisAddr, "r", ":6379", "redis连接地址")
-	flag.StringVar(&opts.RedisPass, "rp", "", "redis连接密码")
 	flag.StringVar(&opts.OutDir, "d", "", "音频输出目录")
 	flag.StringVar(&opts.BackupDir, "b", "", "音频保存目录")
-	flag.IntVar(&opts.Speed, "s", 1, "合成速度")
-
 	flag.StringVar(&txt, "t", "", "单次合成的文本")
 	flag.StringVar(&out, "o", "out/speech.wav", "单次合成的输出路径")
 	flag.StringVar(&logFile, "l", "logs/xftts.log", "日志输出路径")
@@ -87,16 +79,16 @@ func main() {
 
 	err := configureLog(logFile, logLevel)
 	if err != nil {
-		log.Debug("日志配置失败:%v", err)
+		log.Debug(fmt.Errorf("日志配置失败:%v", err))
 		return
 	}
 
 	var srv = server.New(opts)
 
-	log.Debug("合成文本:%q,输出:%s", txt, out)
+	log.Debug(fmt.Sprintf("合成文本:%s,输出:%s", txt, out))
 	err = srv.Once(txt, out)
 	if err != nil {
-		log.Debug("%v", err)
+		log.Debug(fmt.Errorf("%v", err))
 	}
 }
 
