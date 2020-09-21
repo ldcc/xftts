@@ -10,9 +10,25 @@ import (
 
 var usageStr = `
 Usage: xftts [options]
-讯飞语音参数选项:
+语音合成参数选项:
     -tp <param>                 TTS合成参数[有默认值]
+	-engine						引擎类型
+	-voice						发音人
+	-tts-res					离线资源所在路径
+	-speed						语速
+	-volume						音量
+	-pitch						音调
+	-rdn						合成音频数字发音
+	-rate						合成音频采样率
+	-encoding					文本编码格式
+	-aue						音频编码格式和压缩等级
+	-ttp						文本类型
+	-inc						语速增强
+讯飞 SDK 登录参数选项：
     -lp <param>                 登录参数[有默认值]
+	-appid						登录参数
+	-offmode					XF 提供的 SDK-Appid
+	-xxx_res_path				离线引擎启动模式
 合成服务模式选项:
     -d <dir>                    音频保存的目录
     -b <dir>                    音频备份的目录
