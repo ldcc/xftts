@@ -2,7 +2,15 @@
 
 ## Usage
 
-`source unix.sh`
+### 编译
+
+`source xftts build`
+
+### 语音合成
+
+缺省语音 - `./xftts xxx.wav ['say-your-words'`]
+
+缺省文件名 - `./xftts 'say_your_words' [*.wav]`
 
 ## API 调用流程
 

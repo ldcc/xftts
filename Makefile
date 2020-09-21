@@ -1,8 +1,8 @@
 XFTTS := bin/xftts
-DEF_SPEECH := "你他妈的给我翻译翻译什么他妈的叫他妈的惊喜"
+DEF_SPEECH := "good morning"
 
-build: clean xftts clean-cache
-xftts:
+build: clean $(XFTTS) clean-cache
+$(XFTTS):
 	mkdir -p bin out
 	go build -a -installsuffix cgo -o $(XFTTS) ./
 

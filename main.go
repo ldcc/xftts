@@ -3,8 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/astaxie/beego/logs"
 	"xftts/server"
+
+	"github.com/astaxie/beego/logs"
 )
 
 var usageStr = `
@@ -25,7 +26,7 @@ Usage: xftts [options]
 `
 
 const (
-	DefTTSResPath = "fo|res/tts/xiaofeng.jet;fo|res/tts/common.jet"
+	DefTTSResPath = "fo|res/tts/xiaoyan.jet;fo|res/tts/common.jet"
 )
 
 func main() {
@@ -41,7 +42,7 @@ func main() {
 	// TTSParmas
 	flag.StringVar(&opts.TTSParams.Params, "tp", "", "TTS合成参数")
 	flag.StringVar(&opts.EngineType, "engine", "local", "引擎类型")
-	flag.StringVar(&opts.VoiceName, "voice", "xiaofeng", "在线引擎发音人")
+	flag.StringVar(&opts.VoiceName, "voice", "xiaoyan", "发音人")
 	flag.StringVar(&opts.TTSResPath, "tts-res", DefTTSResPath, "离线资源所在路径")
 	flag.IntVar(&opts.Speed, "speed", 50, "语速")
 	flag.IntVar(&opts.Volume, "volume", 50, "音量")
