@@ -3,7 +3,7 @@ package xf
 /*
 
 #cgo CFLAGS:-g -Wall -I./include
-#cgo LDFLAGS:-L./libs/x64 -lmsc -lrt -ldl -lpthread
+#cgo LDFLAGS:-L./libs/x86_64 -lmsc -lrt -ldl -lpthread
 
 #include "tts.h"
 
@@ -25,11 +25,6 @@ import (
 *
 * 详细参数说明请参阅《iFlytek MSC Reference Manual》
  */
-var ttsParams *C.char
-
-func SetTTSParams(params string) {
-	ttsParams = C.CString(params)
-}
 
 func Login(loginParams string) error {
 	l := C.CString(loginParams)
@@ -50,12 +45,14 @@ func Logout() error {
 	return nil
 }
 
-func TextToSpeech(text, outPath string) error {
+func TextToSpeech(text, outPath, params string) error {
 	t := C.CString(text)
 	o := C.CString(outPath)
+	p := C.CString(params)
 	defer C.free(unsafe.Pointer(t))
 	defer C.free(unsafe.Pointer(o))
-	ret := C.text_to_speech(t, o, ttsParams)
+	defer C.free(unsafe.Pointer(p))
+	ret := C.text_to_speech(t, o, p)
 	if ret != C.MSP_SUCCESS {
 		return fmt.Errorf("音频生成失败，错误码：%d", int(ret))
 	}

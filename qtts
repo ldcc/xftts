@@ -1,0 +1,11 @@
+#!/bin/sh
+
+kernel=$(uname -m)
+# shellcheck disable=SC2155
+export LD_LIBRARY_PATH=$(pwd)/xf/libs/$kernel
+
+case $1 in
+  *)
+    echo $1
+    ;;
+esac

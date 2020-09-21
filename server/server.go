@@ -91,16 +91,17 @@ func New(opts *Options) *Server {
 }
 
 func (s *Server) Once(txt string, desPath string) error {
-	logs.Info(fmt.Sprintf("tts:%s", s.opts.TTSParams.Format()))
-	logs.Info(fmt.Sprintf("login:%s", s.opts.LoginParams.Format()))
-	xf.SetTTSParams(s.opts.TTSParams.Format())
-	err := xf.Login(s.opts.LoginParams.Format())
-
+	loginparams := s.opts.LoginParams.Format()
+	logs.Info(fmt.Sprintf("login:%s", loginparams))
+	err := xf.Login(loginparams)
 	if err != nil {
 		return err
 	}
-	logs.Info(fmt.Sprintf("txt:%s,des_path:%s", txt, desPath))
-	err = xf.TextToSpeech(txt, desPath)
+
+	ttsparams := s.opts.TTSParams.Format()
+	logs.Info(fmt.Sprintf("tts:%s", ttsparams))
+	logs.Info(fmt.Sprintf("txt:%s, des_path:%s", txt, desPath))
+	err = xf.TextToSpeech(txt, desPath, ttsparams)
 	if err != nil {
 		return err
 	}
@@ -109,6 +110,7 @@ func (s *Server) Once(txt string, desPath string) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
