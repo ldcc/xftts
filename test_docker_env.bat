@@ -1,0 +1,1 @@
+docker run -it -v D:/go/src/git.gdqlyt.com.cn/TextToSpeech/out:/app/out 192.168.1.30:5000/common/xftts:latest /app/xftts -t "hahaha123123你好啊" -o /app/out/123123.wav
