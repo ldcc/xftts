@@ -4,7 +4,7 @@ DEF_SPEECH := "good morning"
 build: clean $(XFTTS) clean-cache
 $(XFTTS):
 	mkdir -p bin out
-	go build -a -installsuffix cgo -o $(XFTTS) ./
+	go build -work -ldflags "-s -w" -a -installsuffix cgo -o $(XFTTS) ./
 
 # usage: make say_your_words/speech.wav
 %.wav: $(XFTTS)
@@ -19,7 +19,7 @@ clean: clean-cache
 	@rm -f bin/*
 clean-cache:
 	@rm -f msc/*.log msc/*.logcache
-	find msc/ -type d -empty -delete
+	@find msc/ -type d -not \( -regex '.*/res.*' -o -regex '.*/$$' \) | xargs rm -rf
 
 ifeq ($(OS),Windows_NT)
   # on Windows

@@ -14,11 +14,11 @@ case "$1" in
     ;;
   build)
     rm -f $XFTTS
-    go build -a -installsuffix cgo -o $XFTTS ./
+    go build -ldflags "-s -w" -a -installsuffix cgo -o $XFTTS ./
     ;;
   clean)
     rm -f logs/*.log msc/*.log msc/*.logcache
-    find msc/ -type d -empty -delete
+    find msc/ -type d -not \( -regex '.*/res.*' -o -regex '.*/$$' \) -print0 | xargs -0 rm -rf
     ;;
   *.wav)
     DEF_SPEECH="happy 30"
