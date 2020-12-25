@@ -20,7 +20,8 @@ $(XFTTS):
 bench-once: clean-once
 	mkdir -p bin out
 	go test -work -ldflags "-s -w" -a -installsuffix cgo -c -o $(BENCH_ONCE) xftts/server
-	$(BENCH_ONCE) -test.v -test.count 10 -test.bench . -test.run ^$
+	#$(BENCH_ONCE) -test.v -test.bench BenchmarkOnce -test.run ^$$
+	$(BENCH_ONCE) -test.v -test.run TestOnceN
 
 clean: clean-cache
 	@rm -f bin/*

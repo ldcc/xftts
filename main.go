@@ -101,10 +101,20 @@ func main() {
 
 	logs.Info(fmt.Sprintf("合成文本:%s,输出:%s", txt, out))
 
-	srv := server.NewServer(opts)
+	srv, err := server.NewServer(opts)
+	if err != nil {
+		logs.Error(err)
+		return
+	}
+
 	err = srv.Once(txt, out)
 	if err != nil {
-		logs.Info(fmt.Errorf("%v", err))
+		logs.Error(err)
+	}
+
+	err = srv.Close()
+	if err != nil {
+		logs.Error(err)
 	}
 }
 

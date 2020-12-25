@@ -3,66 +3,118 @@ package server
 import (
 	"strconv"
 	"testing"
+	"time"
 )
 
-func BenchmarkOnce(b0 *testing.B) {
-	type fields struct {
-		opts *Options
-	}
-	type args struct {
-		txt     string
-		desPath string
-	}
-	benchmarks := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
-	}{
-		{
-			name: "Performance",
-			fields: struct{ opts *Options }{
-				opts: &Options{
-					TTSParams: TTSParams{
-						EngineType:   "local",
-						VoiceName:    "xiaoyan",
-						TTSResPath:   "fo|res/tts/xiaoyan.jet;fo|res/tts/common.jet",
-						Speed:        50,
-						Volume:       50,
-						Pitch:        50,
-						Rdn:          2,
-						SampleRate:   16000,
-						TextEncoding: "UTF8",
-					},
-					LoginParams: LoginParams{
-						Appid: "5d57f7c2",
-					},
-				}},
-			args: args{
-				txt:     "请1号东风到内科门诊1号诊室就诊",
-				desPath: "out/test",
+type fields struct {
+	opts *Options
+}
+type args struct {
+	txt     string
+	desPath string
+}
+type bench struct {
+	name    string
+	fields  fields
+	args    args
+	wantErr bool
+}
+
+var (
+	defFields = fields{
+		opts: &Options{
+			TTSParams: TTSParams{
+				EngineType:   "local",
+				VoiceName:    "xiaoyan",
+				TTSResPath:   "fo|res/tts/xiaoyan.jet;fo|res/tts/common.jet",
+				Speed:        50,
+				Volume:       50,
+				Pitch:        50,
+				Rdn:          2,
+				SampleRate:   16000,
+				TextEncoding: "UTF8",
 			},
-		},
+			LoginParams: LoginParams{
+				Appid: "5d57f7c2",
+			},
+		}}
+	defArgs = args{
+		txt:     "请1号东风到内科门诊1号诊室就诊",
+		desPath: "out/test",
+	}
+)
+
+func BenchmarkOnce(b *testing.B) {
+	bm := bench{
+		name:   b.Name(),
+		fields: defFields,
+		args:   defArgs,
+	}
+	srv, err := NewServer(bm.fields.opts)
+	if err != nil {
+		b.Fatal(err)
 	}
 
-	//ct := make(chan time.Time)
-	for _, bm := range benchmarks {
-		b0.Run(bm.name, func(b1 *testing.B) {
-			//start := time.Now()
-			for i := 0; i < b0.N; i++ {
-				go func(i int) {
-					s := NewServer(bm.fields.opts)
-					desPath := bm.args.desPath + strconv.Itoa(i) + ".mp3"
-					if err := s.Once(bm.args.txt, desPath); (err != nil) != bm.wantErr {
-						b1.Errorf("Once() error = %v, wantErr %v", err, bm.wantErr)
-					}
-					//ct
-					//elapsed := time.Since(start)
-				}(i)
+	i := 0
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			i++
+			desPath := bm.args.desPath + strconv.Itoa(i) + ".mp3"
+			if err := srv.Once(bm.args.txt, desPath); (err != nil) != bm.wantErr {
+				b.Errorf("Once() error = %v, wantErr %v", err, bm.wantErr)
 			}
+		}
+	})
 
-		})
+	err = srv.Close()
+	if err != nil {
+		b.Fatal(err)
+	}
+}
+
+func TestOnceN(t *testing.T) {
+	type ret struct {
+		int
+		time.Duration
 	}
 
-	//b0.Log("执行次数：", b0.N, "总耗时：", elapsed)
+	n := 5
+	bm := bench{
+		name:   t.Name(),
+		fields: defFields,
+		args:   defArgs,
+	}
+	srv, err := NewServer(bm.fields.opts)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	start := time.Now()
+	ct := make(chan ret, n)
+	for i := 1; i <= n; i++ {
+		//go func(i int) {
+		start := time.Now()
+		desPath := bm.args.desPath + strconv.Itoa(i) + ".mp3"
+		if err := srv.Once(bm.args.txt, desPath); (err != nil) != bm.wantErr {
+			t.Errorf("Once() error = %v, wantErr %v", err, bm.wantErr)
+		}
+		ct <- ret{i, time.Since(start)}
+		//}(i)
+	}
+
+	for i := 1; i <= n; i++ {
+		select {
+		case ret := <-ct:
+			t.Log("执行次数：", i, "耗时：", ret.Duration)
+			if i == n {
+				elapsed := time.Since(start)
+				t.Log("执行总次数：", n, "总耗时：", elapsed)
+			}
+		}
+	}
+
+	err = srv.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
 }
