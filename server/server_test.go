@@ -78,7 +78,7 @@ func TestOnceN(t *testing.T) {
 		time.Duration
 	}
 
-	n := 5
+	n := 3
 	bm := bench{
 		name:   t.Name(),
 		fields: defFields,
