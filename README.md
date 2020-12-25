@@ -4,11 +4,23 @@
 
 ### 编译
 
+使用 Make Tool
+
+`make build`
+
+或者
+
 `source xftts.sh build`
 
 ### 语音合成
 
-缺省语音 - `./xftts.sh xxx.wav ['say-your-words'`]
+使用 Make Tool
+
+`make say_your_words/xxx.wav`
+
+或者
+
+缺省语音 - `./xftts.sh xxx.wav ['say-your-words']`
 
 缺省文件名 - `./xftts.sh 'say_your_words' [*.wav]`
 

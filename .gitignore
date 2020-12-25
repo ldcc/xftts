@@ -8,11 +8,15 @@ out
 .idea
 
 # Compile cache
+logs/
 *.log
 *.logcache
 
+# Resources
 msc/*
 !msc/res
 !msc/msc.cfg
-
 go.sum
+
+# Cmake
+cmake*

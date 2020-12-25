@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"xftts/server"
@@ -98,12 +99,22 @@ func main() {
 		return
 	}
 
-	var srv = server.New(opts)
-
 	logs.Info(fmt.Sprintf("合成文本:%s,输出:%s", txt, out))
+
+	srv, err := server.NewServer(opts)
+	if err != nil {
+		logs.Error(err)
+		return
+	}
+
 	err = srv.Once(txt, out)
 	if err != nil {
-		logs.Info(fmt.Errorf("%v", err))
+		logs.Error(err)
+	}
+
+	err = srv.Close()
+	if err != nil {
+		logs.Error(err)
 	}
 }
 
@@ -111,4 +122,9 @@ func configureLog() (err error) {
 	//设置logger
 	err = logs.SetLogger(logs.AdapterMultiFile, `{"filename":"logs/logger.log", "separate":["error", "warning","info"],"level":3}`)
 	return
+}
+
+func printIndent(data interface{}) {
+	b, _ := json.MarshalIndent(data, "", "\t")
+	println(string(b))
 }

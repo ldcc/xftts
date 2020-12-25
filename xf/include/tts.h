@@ -82,7 +82,7 @@ int text_to_speech(const char* src_text, const char* des_path, const char* param
 		fclose(fp);
 		return ret;
 	}
-	printf("正在合成 ...\n");
+//	printf("正在合成 ...\n");
 	fwrite(&wav_hdr, sizeof(wav_hdr) ,1, fp); //添加wav音频头，使用采样率为16000
 	while (1)
 	{
@@ -98,7 +98,7 @@ int text_to_speech(const char* src_text, const char* des_path, const char* param
 		if (MSP_TTS_FLAG_DATA_END == synth_status)
 			break;
 	}
-	printf("\n");
+//	printf("\n");
 	if (MSP_SUCCESS != ret)
 	{
 		printf("QTTSAudioGet failed, error code: %d.\n",ret);

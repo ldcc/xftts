@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"strconv"
 	"xftts/xf"
-
-	"github.com/astaxie/beego/logs"
 )
 
 type Server struct {
@@ -85,34 +83,24 @@ type Speech struct {
 	Txt string `json:"txt"`
 }
 
-func New(opts *Options) *Server {
-	return &Server{
-		opts: opts,
-	}
-}
-
-func (s *Server) Once(txt string, desPath string) error {
-	loginparams := s.opts.LoginParams.Format()
-	logs.Info(fmt.Sprintf("login:%s", loginparams))
+func NewServer(opts *Options) (*Server, error) {
+	loginparams := opts.LoginParams.Format()
 	err := xf.Login(loginparams)
 	if err != nil {
-		return err
+		return nil, err
 	}
+	return &Server{opts: opts}, nil
+}
 
-	ttsparams := s.opts.TTSParams.Format()
-	logs.Info(fmt.Sprintf("tts:%s", ttsparams))
-	logs.Info(fmt.Sprintf("txt:%s, des_path:%s", txt, desPath))
-	err = xf.TextToSpeech(txt, desPath, ttsparams)
-	if err != nil {
-		return err
-	}
+func (srv Server) Close() error {
+	return xf.Logout()
+}
 
-	err = xf.Logout()
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (srv *Server) Once(txt string, desPath string) error {
+	ttsparams := srv.opts.TTSParams.Format()
+	//logs.Debug(fmt.Sprintf("tts:%s", ttsparams))
+	//logs.Debug(fmt.Sprintf("txt:%s, des_path:%srv", txt, desPath))
+	return xf.TextToSpeech(txt, desPath, ttsparams)
 }
 
 func appendParam(field, value string, src *string) {

@@ -45,9 +45,9 @@ func Logout() error {
 	return nil
 }
 
-func TextToSpeech(text, outPath, params string) error {
-	t := C.CString(text)
-	o := C.CString(outPath)
+func TextToSpeech(txt, desPath, params string) error {
+	t := C.CString(txt)
+	o := C.CString(desPath)
 	p := C.CString(params)
 	defer C.free(unsafe.Pointer(t))
 	defer C.free(unsafe.Pointer(o))
