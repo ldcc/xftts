@@ -12,7 +12,7 @@ RUN mkdir -p /app && \
 
 # 拷贝当前目录代码到镜像
 COPY ./msc/res /app/msc/res
-COPY ./xftts /app/xftts
+COPY ./bin/xftts /app/xftts
 COPY ./xf/include /app/xf/include
 COPY ./xf/libs/x86_64 /app/xf/libs/x86_64
 
