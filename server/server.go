@@ -85,7 +85,7 @@ type Speech struct {
 	Txt string `json:"txt"`
 }
 
-func New(opts *Options) *Server {
+func NewServer(opts *Options) *Server {
 	return &Server{
 		opts: opts,
 	}
@@ -93,15 +93,15 @@ func New(opts *Options) *Server {
 
 func (s *Server) Once(txt string, desPath string) error {
 	loginparams := s.opts.LoginParams.Format()
-	logs.Info(fmt.Sprintf("login:%s", loginparams))
+	logs.Debug(fmt.Sprintf("login:%s", loginparams))
 	err := xf.Login(loginparams)
 	if err != nil {
 		return err
 	}
 
 	ttsparams := s.opts.TTSParams.Format()
-	logs.Info(fmt.Sprintf("tts:%s", ttsparams))
-	logs.Info(fmt.Sprintf("txt:%s, des_path:%s", txt, desPath))
+	logs.Debug(fmt.Sprintf("tts:%s", ttsparams))
+	logs.Debug(fmt.Sprintf("txt:%s, des_path:%s", txt, desPath))
 	err = xf.TextToSpeech(txt, desPath, ttsparams)
 	if err != nil {
 		return err

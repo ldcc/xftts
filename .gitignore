@@ -8,6 +8,7 @@ out
 .idea
 
 # Compile cache
+logs/
 *.log
 *.logcache
 
