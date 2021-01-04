@@ -8,7 +8,7 @@ LABEL "describe"="科大讯飞离线tts"
 RUN mkdir -p /app && \
     mkdir -p /app/logs && \
     mkdir -p /app/out && \
-    mkdir -p /app/xf/libs/x64
+    mkdir -p /app/xf/libs/x86_64
 
 # 拷贝当前目录代码到镜像
 COPY ./msc/res /app/msc/res
