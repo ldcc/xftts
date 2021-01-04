@@ -78,7 +78,7 @@ func TestOnceN(t *testing.T) {
 		time.Duration
 	}
 
-	n := 3
+	n := 100
 	bm := bench{
 		name:   t.Name(),
 		fields: defFields,
@@ -90,28 +90,16 @@ func TestOnceN(t *testing.T) {
 	}
 
 	start := time.Now()
-	ct := make(chan ret, n)
 	for i := 1; i <= n; i++ {
-		//go func(i int) {
 		start := time.Now()
 		desPath := bm.args.desPath + strconv.Itoa(i) + ".mp3"
 		if err := srv.Once(bm.args.txt, desPath); (err != nil) != bm.wantErr {
 			t.Errorf("Once() error = %v, wantErr %v", err, bm.wantErr)
 		}
-		ct <- ret{i, time.Since(start)}
-		//}(i)
+		t.Log("执行次数：", i, "\t耗时：", time.Since(start))
 	}
-
-	for i := 1; i <= n; i++ {
-		select {
-		case ret := <-ct:
-			t.Log("执行次数：", i, "耗时：", ret.Duration)
-			if i == n {
-				elapsed := time.Since(start)
-				t.Log("执行总次数：", n, "总耗时：", elapsed)
-			}
-		}
-	}
+	elapsed := time.Since(start)
+	t.Log("执行总次数：", n, "总耗时：", elapsed)
 
 	err = srv.Close()
 	if err != nil {

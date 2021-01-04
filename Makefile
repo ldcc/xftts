@@ -17,26 +17,23 @@ $(XFTTS):
 		./bin/xftts -t $(@D) -o out/$(@F);\
 	fi
 
-bench-once: clean-once
-	mkdir -p bin out
+$(BENCH_ONCE):
 	go test -work -ldflags "-s -w" -a -installsuffix cgo -c -o $(BENCH_ONCE) xftts/server
-	#$(BENCH_ONCE) -test.v -test.bench BenchmarkOnce -test.run ^$$
-	$(BENCH_ONCE) -test.v -test.run TestOnceN
+
+bench-test: $(BENCH_ONCE)
+	mkdir -p bin out
+	$(BENCH_ONCE) -test.v -test.bench BenchmarkOnce -test.run TestOnceN
+	#$(BENCH_ONCE) -test.v -test.run TestOnceN
+#
+clean-bench: clean-cache
+	@rm -f $(BENCH_ONCE)
+
+clean-cache:
+	@rm -f out/*.mp3 out/*.wav
+	@rm -f msc/*.log msc/*.logcache
+	@find msc/ -type d -not \( -regex '.*/res.*' -o -regex '.*/$$' \) | xargs rm -rf
 
 clean: clean-cache
 	@rm -f bin/*
 
-clean-once:
-	@rm -f $(BENCH_ONCE)
-
-clean-cache:
-	@rm -f msc/*.log msc/*.logcache
-	@find msc/ -type d -not \( -regex '.*/res.*' -o -regex '.*/$$' \) | xargs rm -rf
-
-ifeq ($(OS),Windows_NT)
-  # on Windows
-else
-  # on Unix/Linux
-endif
-
-.PHONY: clean clean-cache
+.PHONY: clean clean-bench clean-cache
