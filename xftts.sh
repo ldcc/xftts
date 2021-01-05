@@ -10,10 +10,9 @@ fi
 case "$1" in
   help)
     echo "xftts 脚本
-    xftts build - 编译可执行文件
-    xftts clean - 清理缓存和日志文件
-    xftts *.wav ['say_your_words'] - 合成语音（缺省语音）
-    xftts 'say_your_words' [*.wav] - 合成语音（缺省文件名）"
+    - build 编译可执行文件
+    - clean 清理缓存和日志文件
+    - 'words' [*.wav] 合成语音"
     ;;
   build)
     make build;;
