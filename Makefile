@@ -18,7 +18,7 @@ $(XFTTS):
 	fi
 
 $(BENCH_ONCE):
-	go test -work -ldflags "-s -w" -a -installsuffix cgo -c -o $(BENCH_ONCE) xftts/server
+	go test -work -ldflags "-s -w" -a -installsuffix cgo -c -o $(BENCH_ONCE) xftts/xf
 
 bench-test: $(BENCH_ONCE)
 	mkdir -p bin out

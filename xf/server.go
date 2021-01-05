@@ -1,9 +1,8 @@
-package server
+package xf
 
 import (
 	"fmt"
 	"strconv"
-	"xftts/xf"
 )
 
 type Server struct {
@@ -85,7 +84,7 @@ type Speech struct {
 
 func NewServer(opts *Options) (*Server, error) {
 	loginparams := opts.LoginParams.Format()
-	err := xf.Login(loginparams)
+	err := Login(loginparams)
 	if err != nil {
 		return nil, err
 	}
@@ -93,14 +92,14 @@ func NewServer(opts *Options) (*Server, error) {
 }
 
 func (srv Server) Close() error {
-	return xf.Logout()
+	return Logout()
 }
 
 func (srv *Server) Once(txt string, desPath string) error {
 	ttsparams := srv.opts.TTSParams.Format()
 	//logs.Debug(fmt.Sprintf("tts:%s", ttsparams))
 	//logs.Debug(fmt.Sprintf("txt:%s, des_path:%srv", txt, desPath))
-	return xf.TextToSpeech(txt, desPath, ttsparams)
+	return TextToSpeech(txt, desPath, ttsparams)
 }
 
 func appendParam(field, value string, src *string) {

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"xftts/server"
+	"xftts/xf"
 
 	"github.com/astaxie/beego/logs"
 )
@@ -48,7 +48,7 @@ const (
 
 func main() {
 	var (
-		opts     = &server.Options{}
+		opts     = &xf.Options{}
 		txt      string
 		out      string
 		help     bool
@@ -101,7 +101,7 @@ func main() {
 
 	logs.Info(fmt.Sprintf("合成文本:%s,输出:%s", txt, out))
 
-	srv, err := server.NewServer(opts)
+	srv, err := xf.NewServer(opts)
 	if err != nil {
 		logs.Error(err)
 		return

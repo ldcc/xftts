@@ -1,4 +1,4 @@
-package server
+package xf
 
 import (
 	"strconv"
@@ -78,7 +78,7 @@ func TestOnceN(t *testing.T) {
 		time.Duration
 	}
 
-	n := 100
+	n := 1
 	bm := bench{
 		name:   t.Name(),
 		fields: defFields,
@@ -96,10 +96,10 @@ func TestOnceN(t *testing.T) {
 		if err := srv.Once(bm.args.txt, desPath); (err != nil) != bm.wantErr {
 			t.Errorf("Once() error = %v, wantErr %v", err, bm.wantErr)
 		}
-		t.Log("执行次数：", i, "\t耗时：", time.Since(start))
+		t.Log("\t执行次数：", i, "\t耗时：", time.Since(start))
 	}
 	elapsed := time.Since(start)
-	t.Log("执行总次数：", n, "总耗时：", elapsed)
+	t.Log("\t执行总次数：", n, "\t总耗时：", elapsed)
 
 	err = srv.Close()
 	if err != nil {

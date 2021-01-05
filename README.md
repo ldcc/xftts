@@ -20,9 +20,7 @@
 
 或者
 
-缺省语音 - `./xftts.sh xxx.wav ['say-your-words']`
-
-缺省文件名 - `./xftts.sh 'say_your_words' [*.wav]`
+`./xftts.sh 'say_your_words' [*.wav]`
 
 ## API 调用流程
 
