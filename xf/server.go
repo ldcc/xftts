@@ -9,6 +9,26 @@ type Server struct {
 	opts *Options
 }
 
+func NewServer(opts *Options) (*Server, error) {
+	loginparams := opts.LoginParams.Format()
+	err := Login(loginparams)
+	if err != nil {
+		return nil, err
+	}
+	return &Server{opts: opts}, nil
+}
+
+func (srv Server) Close() error {
+	return Logout()
+}
+
+func (srv *Server) Once(txt string, desPath string) error {
+	ttsparams := srv.opts.TTSParams.Format()
+	//logs.Debug(fmt.Sprintf("tts:%s", ttsparams))
+	//logs.Debug(fmt.Sprintf("txt:%s, des_path:%srv", txt, desPath))
+	return TextToSpeech(txt, desPath, ttsparams)
+}
+
 type Options struct {
 	TTSParams
 	LoginParams
@@ -80,26 +100,6 @@ func (p *LoginParams) Format() string {
 type Speech struct {
 	Id  string `json:"id"`
 	Txt string `json:"txt"`
-}
-
-func NewServer(opts *Options) (*Server, error) {
-	loginparams := opts.LoginParams.Format()
-	err := Login(loginparams)
-	if err != nil {
-		return nil, err
-	}
-	return &Server{opts: opts}, nil
-}
-
-func (srv Server) Close() error {
-	return Logout()
-}
-
-func (srv *Server) Once(txt string, desPath string) error {
-	ttsparams := srv.opts.TTSParams.Format()
-	//logs.Debug(fmt.Sprintf("tts:%s", ttsparams))
-	//logs.Debug(fmt.Sprintf("txt:%s, des_path:%srv", txt, desPath))
-	return TextToSpeech(txt, desPath, ttsparams)
 }
 
 func appendParam(field, value string, src *string) {

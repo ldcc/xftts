@@ -1,12 +1,13 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
-	"xftts/xf"
 
-	"github.com/astaxie/beego/logs"
+	"github.com/beego/beego/v2/adapter/logs"
+	"github.com/beego/beego/v2/server/web"
+	_ "xftts/routers"
+	"xftts/xf"
 )
 
 var usageStr = `
@@ -46,16 +47,16 @@ const (
 	DefTTSResPath = "fo|res/tts/xiaoyan.jet;fo|res/tts/common.jet"
 )
 
-func main() {
-	var (
-		opts     = &xf.Options{}
-		txt      string
-		out      string
-		help     bool
-		logFile  string
-		logLevel string
-	)
+var (
+	opts     = &xf.Options{}
+	txt      string
+	out      string
+	help     bool
+	logFile  string
+	logLevel string
+)
 
+func init() {
 	// TTSParmas
 	flag.StringVar(&opts.TTSParams.Params, "tp", "", "TTS合成参数")
 	flag.StringVar(&opts.EngineType, "engine", "local", "引擎类型")
@@ -88,43 +89,40 @@ func main() {
 
 	flag.Parse()
 
+	// 设置 logger
+	err := logs.SetLogger(logs.AdapterMultiFile, `{"filename":"logs/logger.log", "separate":["error", "warning","info"],"level":3}`)
+	if err != nil {
+		logs.Error("日志配置失败", err)
+	}
+}
+
+func main() {
 	if help {
 		fmt.Printf("%s\n", usageStr)
 		return
 	}
-
-	err := configureLog()
-	if err != nil {
-		logs.Error(fmt.Errorf("日志配置失败:%v", err))
-		return
-	}
-
-	logs.Info(fmt.Sprintf("合成文本:%s,输出:%s", txt, out))
 
 	srv, err := xf.NewServer(opts)
 	if err != nil {
 		logs.Error(err)
 		return
 	}
+	defer func() {
+		err = srv.Close()
+		if err != nil {
+			logs.Error(err)
+		}
+	}()
 
-	err = srv.Once(txt, out)
-	if err != nil {
-		logs.Error(err)
+	if txt != "" && out != "" {
+		logs.Info(fmt.Sprintf("合成文本:%s,输出:%s", txt, out))
+		err = srv.Once(txt, out)
+		if err != nil {
+			logs.Error(err)
+		}
+		return
 	}
 
-	err = srv.Close()
-	if err != nil {
-		logs.Error(err)
-	}
-}
-
-func configureLog() (err error) {
-	//设置logger
-	err = logs.SetLogger(logs.AdapterMultiFile, `{"filename":"logs/logger.log", "separate":["error", "warning","info"],"level":3}`)
-	return
-}
-
-func printIndent(data interface{}) {
-	b, _ := json.MarshalIndent(data, "", "\t")
-	println(string(b))
+	HttpPort := web.AppConfig.DefaultString("httpport", ":20000")
+	web.Run(HttpPort)
 }

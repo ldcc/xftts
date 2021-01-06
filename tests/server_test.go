@@ -1,13 +1,14 @@
-package xf
+package test
 
 import (
 	"strconv"
 	"testing"
 	"time"
+	"xftts/xf"
 )
 
 type fields struct {
-	opts *Options
+	opts *xf.Options
 }
 type args struct {
 	txt     string
@@ -22,8 +23,8 @@ type bench struct {
 
 var (
 	defFields = fields{
-		opts: &Options{
-			TTSParams: TTSParams{
+		opts: &xf.Options{
+			TTSParams: xf.TTSParams{
 				EngineType:   "local",
 				VoiceName:    "xiaoyan",
 				TTSResPath:   "fo|res/tts/xiaoyan.jet;fo|res/tts/common.jet",
@@ -34,7 +35,7 @@ var (
 				SampleRate:   16000,
 				TextEncoding: "UTF8",
 			},
-			LoginParams: LoginParams{
+			LoginParams: xf.LoginParams{
 				Appid: "5d57f7c2",
 			},
 		}}
@@ -50,7 +51,7 @@ func BenchmarkOnce(b *testing.B) {
 		fields: defFields,
 		args:   defArgs,
 	}
-	srv, err := NewServer(bm.fields.opts)
+	srv, err := xf.NewServer(bm.fields.opts)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -84,7 +85,7 @@ func TestOnceN(t *testing.T) {
 		fields: defFields,
 		args:   defArgs,
 	}
-	srv, err := NewServer(bm.fields.opts)
+	srv, err := xf.NewServer(bm.fields.opts)
 	if err != nil {
 		t.Fatal(err)
 	}

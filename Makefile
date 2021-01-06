@@ -12,19 +12,22 @@ $(XFTTS):
 %.wav: $(XFTTS)
 	@rm -f out/$(@F)
 	@if [ $(*D) = "." ]; then\
-		./bin/xftts -t $(DEF_SPEECH) -o out/$(@F);\
+		$(XFTTS) -t $(DEF_SPEECH) -o out/$(@F);\
 	else\
-		./bin/xftts -t $(@D) -o out/$(@F);\
+		$(XFTTS) -t $(@D) -o out/$(@F);\
 	fi
 
+serve: $(XFTTS)
+	$(XFTTS)
+
 $(BENCH_ONCE):
-	go test -work -ldflags "-s -w" -a -installsuffix cgo -c -o $(BENCH_ONCE) xftts/xf
+	go test -work -ldflags "-s -w" -a -installsuffix cgo -c -o $(BENCH_ONCE) xftts/tests
 
 bench-test: $(BENCH_ONCE)
 	mkdir -p bin out
-	$(BENCH_ONCE) -test.v -test.bench BenchmarkOnce -test.run TestOnceN
+	$(BENCH_ONCE) -test.v -test.bench BenchmarkOnce -test.run TestOnceN #^$$
 	#$(BENCH_ONCE) -test.v -test.run TestOnceN
-#
+
 clean-bench: clean-cache
 	@rm -f $(BENCH_ONCE)
 
