@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/beego/beego/v2/core/logs"
 	"golang.org/x/crypto/sha3"
 	"io/ioutil"
+	"os"
 	"xftts/xf"
 
 	beego "github.com/beego/beego/v2/server/web"
@@ -23,10 +25,11 @@ type XfController struct {
 
 func (c *XfController) Once() {
 	var (
-		req  models.Speech
-		resp models.Resp
-		buf  []byte
-		err  error
+		req     models.Speech
+		resp    models.Resp
+		desPath string
+		buf     []byte
+		err     error
 	)
 	defer func() {
 		if err != nil {
@@ -34,6 +37,10 @@ func (c *XfController) Once() {
 			resp.Msg = err.Error()
 			c.Data["json"] = resp
 			_ = c.ServeJSON()
+		} else {
+			if err = os.Remove(desPath); err != nil {
+				logs.Error("删除文件失败:", err)
+			}
 		}
 	}()
 
@@ -49,7 +56,7 @@ func (c *XfController) Once() {
 	}
 	req.Hash = sha3.Sum256([]byte(req.Txt))
 
-	desPath := "out/" + hex.EncodeToString(req.Hash[:]) + wavsuffix
+	desPath = "out/" + hex.EncodeToString(req.Hash[:]) + wavsuffix
 	err = xf.TTSSrv.Once(req.Txt, desPath)
 	if err != nil {
 		return
