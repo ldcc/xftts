@@ -1,5 +1,6 @@
 XFTTS := bin/xftts
 BENCH_ONCE := bin/once
+SEND_ONCE := bin/send
 
 DEF_SPEECH := "good morning"
 
@@ -20,19 +21,22 @@ $(XFTTS):
 serve: $(XFTTS)
 	$(XFTTS)
 
+sent-once:
+	go test -work -ldflags "-s -w" -a -installsuffix cgo -c -o $(SEND_ONCE) xftts/tests
+	$(SEND_ONCE) -test.v -test.run TestSendGet
+
 $(BENCH_ONCE):
 	go test -work -ldflags "-s -w" -a -installsuffix cgo -c -o $(BENCH_ONCE) xftts/tests
 
 bench-test: $(BENCH_ONCE)
 	mkdir -p bin out
 	$(BENCH_ONCE) -test.v -test.bench BenchmarkOnce -test.run TestOnceN #^$$
-	#$(BENCH_ONCE) -test.v -test.run TestOnceN
 
 clean-bench: clean-cache
 	@rm -f $(BENCH_ONCE)
 
 clean-cache:
-	@rm -f out/*.mp3 out/*.wav
+	@rm -f out/*.wav out/*.wav
 	@rm -f msc/*.log msc/*.logcache
 	@find msc/ -type d -not \( -regex '.*/res.*' -o -regex '.*/$$' \) | xargs rm -rf
 

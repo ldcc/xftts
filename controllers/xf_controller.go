@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	mp3suffix = ".mp3"
+	wavsuffix = ".wav"
 )
 
 type XfController struct {
@@ -48,12 +48,12 @@ func (c *XfController) Once() {
 	}
 	req.Hash = sha3.Sum256([]byte(req.Txt))
 
-	err = xf.TTSSrv.Once(req.Txt, string(req.Hash[:])+mp3suffix)
+	err = xf.TTSSrv.Once(req.Txt, string(req.Hash[:])+wavsuffix)
 	if err != nil {
 		return
 	}
 
-	buf, err = ioutil.ReadFile(string(req.Hash[:]) + mp3suffix)
+	buf, err = ioutil.ReadFile(string(req.Hash[:]) + wavsuffix)
 	if err != nil {
 		err = fmt.Errorf("获取文件失败，%v", err)
 		return

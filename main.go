@@ -81,8 +81,10 @@ func init() {
 	// Options
 	flag.StringVar(&opts.OutDir, "d", "", "音频输出目录")
 	flag.StringVar(&opts.BackupDir, "b", "", "音频保存目录")
+	flag.IntVar(&opts.Level, "level", 1, "音频生成速度级别，级别1~10，数字越小速度越快")
+
 	flag.StringVar(&txt, "t", "", "单次合成的文本")
-	flag.StringVar(&out, "o", "out/speech.mp3", "单次合成的输出路径")
+	flag.StringVar(&out, "o", "out/speech.wav", "单次合成的输出路径")
 	flag.StringVar(&logFile, "l", "logs/xftts.log", "日志输出路径")
 	flag.StringVar(&logLevel, "ll", "debug", "日志输出级别")
 	flag.BoolVar(&help, "h", false, "Help")
@@ -123,6 +125,5 @@ func main() {
 		return
 	}
 
-	HttpPort := web.AppConfig.DefaultString("httpport", ":20000")
-	web.Run(HttpPort)
+	web.Run()
 }

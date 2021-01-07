@@ -40,7 +40,7 @@ type Options struct {
 
 	OutDir    string // 音频输出目录
 	BackupDir string // 备份目录，文件输出成功之后，再将文件复制到备份目录
-	Level     int    // 音频生成速度级别，越快越耗CPU，级别1~10,数字越小速度越快
+	Level     int    // 音频生成速度级别，越快越耗CPU，级别1~10，数字越小速度越快
 	RedisAddr string
 	RedisPass string
 }

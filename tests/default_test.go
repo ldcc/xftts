@@ -3,6 +3,7 @@ package test
 import (
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"runtime"
 	"path/filepath"
@@ -20,8 +21,9 @@ func init() {
 }
 
 // TestGet is a sample to run an endpoint test
-func TestGet(t *testing.T) {
-	r, _ := http.NewRequest("POST", "/xftts", nil)
+func TestSendGet(t *testing.T) {
+	body := `{txt: "请1号东风到内科门诊1号诊室就诊"}`
+	r, _ := http.NewRequest("POST", "/xftts/Once", strings.NewReader(body))
 	w := httptest.NewRecorder()
 	beego.BeeApp.Handlers.ServeHTTP(w, r)
 
