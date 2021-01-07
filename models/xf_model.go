@@ -7,6 +7,7 @@ type Resp struct {
 }
 
 type Speech struct {
-	Hash [32]byte `json:"hash,omitempty"`
-	Txt  string   `json:"txt"`
+	Hash    [32]byte `json:"hash,omitempty"`
+	Txt     string   `json:"txt"`
+	Speaker string   `json:"speaker"`
 }
