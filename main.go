@@ -74,7 +74,7 @@ func init() {
 
 	// LoginParams
 	flag.StringVar(&opts.LoginParams.Params, "lp", "", "登录参数")
-	flag.StringVar(&opts.Appid, "appid", "5d57f7c2", "XF 提供的 SDK-Appid")
+	flag.StringVar(&opts.Appid, "appid", "5ff5193f", "XF 提供的 SDK-Appid")
 	flag.StringVar(&opts.EngineMode, "offmode", "", "离线引擎启动模式")
 	flag.StringVar(&opts.XXXResPath, "xxx_res_path", "", "离线引擎所在路径。")
 
