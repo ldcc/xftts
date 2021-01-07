@@ -43,7 +43,7 @@ func (c *XfController) Once() {
 
 	err = json.Unmarshal(c.Ctx.Input.RequestBody, &req)
 	if err != nil {
-		err = errors.New("参数解析错误")
+		err = fmt.Errorf("参数解析错误，%v", err)
 		return
 	}
 	req.Hash = sha3.Sum256([]byte(req.Txt))
