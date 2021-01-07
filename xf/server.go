@@ -5,17 +5,22 @@ import (
 	"strconv"
 )
 
+var (
+	TTSSrv *Server
+)
+
 type Server struct {
 	opts *Options
 }
 
-func NewServer(opts *Options) (*Server, error) {
+func InitServer(opts *Options) error {
 	loginparams := opts.LoginParams.Format()
 	err := Login(loginparams)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return &Server{opts: opts}, nil
+	TTSSrv = &Server{opts: opts}
+	return nil
 }
 
 func (srv Server) Close() error {
@@ -95,11 +100,6 @@ func (p *LoginParams) Format() string {
 	appendParam("engine_start", p.EngineMode, params)
 	appendParam(p.EngineMode+"_res_path", p.XXXResPath, params)
 	return *params
-}
-
-type Speech struct {
-	Id  string `json:"id"`
-	Txt string `json:"txt"`
 }
 
 func appendParam(field, value string, src *string) {

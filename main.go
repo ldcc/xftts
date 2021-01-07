@@ -82,7 +82,7 @@ func init() {
 	flag.StringVar(&opts.OutDir, "d", "", "音频输出目录")
 	flag.StringVar(&opts.BackupDir, "b", "", "音频保存目录")
 	flag.StringVar(&txt, "t", "", "单次合成的文本")
-	flag.StringVar(&out, "o", "out/speech.wav", "单次合成的输出路径")
+	flag.StringVar(&out, "o", "out/speech.mp3", "单次合成的输出路径")
 	flag.StringVar(&logFile, "l", "logs/xftts.log", "日志输出路径")
 	flag.StringVar(&logLevel, "ll", "debug", "日志输出级别")
 	flag.BoolVar(&help, "h", false, "Help")
@@ -102,13 +102,13 @@ func main() {
 		return
 	}
 
-	srv, err := xf.NewServer(opts)
+	err := xf.InitServer(opts)
 	if err != nil {
 		logs.Error(err)
 		return
 	}
 	defer func() {
-		err = srv.Close()
+		err = xf.TTSSrv.Close()
 		if err != nil {
 			logs.Error(err)
 		}
@@ -116,7 +116,7 @@ func main() {
 
 	if txt != "" && out != "" {
 		logs.Info(fmt.Sprintf("合成文本:%s,输出:%s", txt, out))
-		err = srv.Once(txt, out)
+		err = xf.TTSSrv.Once(txt, out)
 		if err != nil {
 			logs.Error(err)
 		}

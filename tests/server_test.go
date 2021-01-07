@@ -51,7 +51,7 @@ func BenchmarkOnce(b *testing.B) {
 		fields: defFields,
 		args:   defArgs,
 	}
-	srv, err := xf.NewServer(bm.fields.opts)
+	err := xf.InitServer(bm.fields.opts)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -61,13 +61,13 @@ func BenchmarkOnce(b *testing.B) {
 		for pb.Next() {
 			i++
 			desPath := bm.args.desPath + strconv.Itoa(i) + ".mp3"
-			if err := srv.Once(bm.args.txt, desPath); (err != nil) != bm.wantErr {
+			if err := xf.TTSSrv.Once(bm.args.txt, desPath); (err != nil) != bm.wantErr {
 				b.Errorf("Once() error = %v, wantErr %v", err, bm.wantErr)
 			}
 		}
 	})
 
-	err = srv.Close()
+	err = xf.TTSSrv.Close()
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -85,7 +85,7 @@ func TestOnceN(t *testing.T) {
 		fields: defFields,
 		args:   defArgs,
 	}
-	srv, err := xf.NewServer(bm.fields.opts)
+	err := xf.InitServer(bm.fields.opts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -94,7 +94,7 @@ func TestOnceN(t *testing.T) {
 	for i := 1; i <= n; i++ {
 		start := time.Now()
 		desPath := bm.args.desPath + strconv.Itoa(i) + ".mp3"
-		if err := srv.Once(bm.args.txt, desPath); (err != nil) != bm.wantErr {
+		if err := xf.TTSSrv.Once(bm.args.txt, desPath); (err != nil) != bm.wantErr {
 			t.Errorf("Once() error = %v, wantErr %v", err, bm.wantErr)
 		}
 		t.Log("\t执行次数：", i, "\t耗时：", time.Since(start))
@@ -102,7 +102,7 @@ func TestOnceN(t *testing.T) {
 	elapsed := time.Since(start)
 	t.Log("\t执行总次数：", n, "\t总耗时：", elapsed)
 
-	err = srv.Close()
+	err = xf.TTSSrv.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
