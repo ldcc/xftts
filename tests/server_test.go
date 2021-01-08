@@ -26,8 +26,8 @@ var (
 		opts: &xf.Options{
 			TTSParams: xf.TTSParams{
 				EngineType:   "local",
-				VoiceName:    "xiaoyan",
-				TTSResPath:   "fo|res/tts/xiaoyan.jet;fo|res/tts/common.jet",
+				VoiceName:    "xiaomei",
+				TTSResPath:   "fo|res/tts/xiaomei.jet;fo|res/tts/common.jet",
 				Speed:        50,
 				Volume:       50,
 				Pitch:        50,
@@ -36,7 +36,7 @@ var (
 				TextEncoding: "UTF8",
 			},
 			LoginParams: xf.LoginParams{
-				Appid: "5d57f7c2",
+				Appid: "5ff5193f",
 			},
 		}}
 	defArgs = args{

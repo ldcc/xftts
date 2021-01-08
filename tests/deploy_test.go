@@ -15,27 +15,8 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-var (
-	opts = &xf.Options{
-		TTSParams: xf.TTSParams{
-			EngineType:   "local",
-			VoiceName:    "xiaoyan",
-			TTSResPath:   "fo|res/tts/xiaoyan.jet;fo|res/tts/common.jet",
-			Speed:        50,
-			Volume:       50,
-			Pitch:        50,
-			Rdn:          2,
-			SampleRate:   16000,
-			TextEncoding: "UTF8",
-		},
-		LoginParams: xf.LoginParams{
-			Appid: "5d57f7c2",
-		},
-	}
-)
-
 func init() {
-	_ = xf.InitServer(opts)
+	_ = xf.InitServer(defFields.opts)
 	_, file, _, _ := runtime.Caller(0)
 	apppath, _ := filepath.Abs(filepath.Dir(filepath.Join(file, ".."+string(filepath.Separator))))
 	beego.TestBeegoInit(apppath)
