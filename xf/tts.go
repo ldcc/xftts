@@ -2,8 +2,8 @@ package xf
 
 /*
 
-#cgo CFLAGS:-g -Wall -I./include
-#cgo LDFLAGS:-L./libs/x86_64 -lmsc -lrt -ldl -lpthread
+#cgo CFLAGS:-g -Wall -I.
+#cgo LDFLAGS:-L./libs/x64 -lmsc -lrt -ldl -lpthread
 
 #include "tts.h"
 

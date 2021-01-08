@@ -21,8 +21,10 @@ $(XFTTS):
 serve: $(XFTTS)
 	$(XFTTS)
 
-sent-once:
+$(SEND_ONCE):
 	go test -work -ldflags "-s -w" -a -installsuffix cgo -c -o $(SEND_ONCE) xftts/tests
+
+sent-once: $(SEND_ONCE)
 	$(SEND_ONCE) -test.v -test.run TestSendGet
 
 $(BENCH_ONCE):

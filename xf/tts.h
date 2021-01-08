@@ -4,9 +4,9 @@
 #include <unistd.h>
 #include <errno.h>
 
-#include "qtts.h"
-#include "msp_cmn.h"
-#include "msp_errors.h"
+#include "include/qtts.h"
+#include "include/msp_cmn.h"
+#include "include/msp_errors.h"
 
 /* wav音频头部格式 */
 typedef struct _wave_pcm_hdr
@@ -82,7 +82,6 @@ int text_to_speech(const char* src_text, const char* des_path, const char* param
 		fclose(fp);
 		return ret;
 	}
-//	printf("正在合成 ...\n");
 	fwrite(&wav_hdr, sizeof(wav_hdr) ,1, fp); //添加wav音频头，使用采样率为16000
 	while (1)
 	{
@@ -98,7 +97,6 @@ int text_to_speech(const char* src_text, const char* des_path, const char* param
 		if (MSP_TTS_FLAG_DATA_END == synth_status)
 			break;
 	}
-//	printf("\n");
 	if (MSP_SUCCESS != ret)
 	{
 		printf("QTTSAudioGet failed, error code: %d.\n",ret);

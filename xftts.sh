@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # shellcheck disable=SC2155
-export LD_LIBRARY_PATH=$(pwd)/xf/libs/$(uname -m)
+export LD_LIBRARY_PATH=$(pwd)/xf/libs/x64
 
 if [ -z "$1" ]; then
     exit 0

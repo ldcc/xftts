@@ -55,8 +55,8 @@ func (c *XfController) Once() {
 		return
 	}
 	req.Hash = sha3.Sum256([]byte(req.Txt))
-
 	desPath = "out/" + hex.EncodeToString(req.Hash[:]) + wavsuffix
+
 	err = xf.TTSSrv.Once(req.Txt, desPath)
 	if err != nil {
 		return
