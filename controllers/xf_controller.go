@@ -1,18 +1,18 @@
 package controllers
 
 import (
+	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/beego/beego/v2/core/logs"
-	"golang.org/x/crypto/sha3"
 	"io/ioutil"
 	"os"
-	"xftts/xf"
 
+	"github.com/beego/beego/v2/core/logs"
 	beego "github.com/beego/beego/v2/server/web"
 	"xftts/models"
+	"xftts/xf"
 )
 
 const (
@@ -54,7 +54,7 @@ func (c *XfController) Once() {
 		err = fmt.Errorf("参数解析错误，%v", err)
 		return
 	}
-	req.Hash = sha3.Sum256([]byte(req.Txt))
+	req.Hash = md5.Sum([]byte(req.Txt))
 	desPath = "out/" + hex.EncodeToString(req.Hash[:]) + wavsuffix
 
 	err = xf.TTSSrv.Once(req.Txt, desPath)

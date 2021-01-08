@@ -3,6 +3,7 @@ package xf
 import (
 	"fmt"
 	"strconv"
+	"sync"
 )
 
 var (
@@ -10,6 +11,8 @@ var (
 )
 
 type Server struct {
+	locker sync.RWMutex
+
 	opts *Options
 }
 
@@ -20,17 +23,24 @@ func InitServer(opts *Options) error {
 		return err
 	}
 	TTSSrv = &Server{opts: opts}
+	//go func() {
+	//	for {
+	//		select {
+	//
+	//		}
+	//	}
+	//}()
 	return nil
 }
 
-func (srv Server) Close() error {
+func (srv *Server) Close() error {
 	return Logout()
 }
 
 func (srv *Server) Once(txt string, desPath string) error {
+	srv.locker.Lock()
+	defer func() { srv.locker.Unlock() }()
 	ttsparams := srv.opts.TTSParams.Format()
-	//logs.Debug(fmt.Sprintf("tts:%s", ttsparams))
-	//logs.Debug(fmt.Sprintf("txt:%s, des_path:%srv", txt, desPath))
 	return TextToSpeech(txt, desPath, ttsparams)
 }
 
