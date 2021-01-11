@@ -13,9 +13,9 @@ logs/
 *.logcache
 
 # Resources
-msc/*
-!msc/res
-!msc/msc.cfg
+*/msc/*
+!*/msc/res
+!*/msc/msc.cfg
 go.sum
 
 # Cmake

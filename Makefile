@@ -37,11 +37,12 @@ bench-test: $(BENCH_ONCE)
 clean-bench: clean-cache
 	@rm -f $(BENCH_ONCE)
 
+MSC := xf/msc
 clean-cache:
 	@rm -f logs/*.log
 	@rm -f out/*.wav out/*.mp3
-	@rm -f msc/*.log msc/*.logcache
-	@find msc/ -type d -not \( -regex '.*/res.*' -o -regex '.*/$$' \) | xargs rm -rf
+	@rm -f $(MSC)/*.log $(MSC)/*.logcache
+	@find $(MSC)/ -type d -not \( -regex '.*/res.*' -o -regex '.*/$$' \) | xargs rm -rf
 
 clean: clean-cache
 	@rm -f bin/*

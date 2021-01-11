@@ -29,7 +29,7 @@ RUN mkdir -p /app && \
     mkdir -p /app/xf/libs/x64
 
 # 拷贝当前目录代码到镜像
-COPY ./msc/res /app/msc/res
+COPY ./xf/msc /app/xf/msc
 COPY ./xf/include /app/xf/include
 COPY ./xf/libs/x64 /app/xf/libs/x64
 COPY ./conf/app.conf /app/conf/app.conf

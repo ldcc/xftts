@@ -88,8 +88,9 @@ func (p *TTSParams) Format() string {
 type LoginParams struct {
 	Params     string // 登录参数，如果该值被指定，则忽略所有其它字段
 	Appid      string // XF 提供的 SDK-Appid
+	WordDir    string // msc 工作目录
 	EngineMode string // 离线引擎启动模式
-	XXXResPath string //   fo|[path]|[offset]|[length]
+	XXXResPath string // fo|[path]|[offset]|[length]
 }
 
 func (p *LoginParams) Format() string {
@@ -99,6 +100,7 @@ func (p *LoginParams) Format() string {
 
 	var params = &p.Params
 	appendParam("appid", p.Appid, params)
+	appendParam("work_dir", p.WordDir, params)
 	appendParam("engine_start", p.EngineMode, params)
 	appendParam(p.EngineMode+"_res_path", p.XXXResPath, params)
 	return *params
