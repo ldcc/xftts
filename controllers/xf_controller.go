@@ -6,11 +6,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"os"
-
-	"github.com/beego/beego/v2/core/logs"
 	beego "github.com/beego/beego/v2/server/web"
+	"io/ioutil"
 	"xftts/models"
 	"xftts/xf"
 )
@@ -25,11 +22,9 @@ type XfController struct {
 
 func (c *XfController) Once() {
 	var (
-		req     models.Speech
-		resp    models.Resp
-		desPath string
-		buf     []byte
-		err     error
+		req  models.Speech
+		resp models.Resp
+		err  error
 	)
 	defer func() {
 		if err != nil {
@@ -37,10 +32,6 @@ func (c *XfController) Once() {
 			resp.Msg = err.Error()
 			c.Data["json"] = resp
 			_ = c.ServeJSON()
-		} else {
-			if err = os.Remove(desPath); err != nil {
-				logs.Error("删除文件失败:", err)
-			}
 		}
 	}()
 
@@ -54,8 +45,15 @@ func (c *XfController) Once() {
 		err = fmt.Errorf("参数解析错误，%v", err)
 		return
 	}
-	req.Hash = md5.Sum([]byte(req.Txt))
-	desPath = "out/" + hex.EncodeToString(req.Hash[:]) + wavsuffix
+
+	var (
+		desPath string
+		hash    [16]byte
+		buf     []byte
+	)
+	hash = md5.Sum([]byte(req.Txt))
+	req.Hash = hex.EncodeToString(hash[:])
+	desPath = "out/" + req.Hash + wavsuffix
 
 	err = xf.TTSSrv.Once(req.Txt, desPath)
 	if err != nil {

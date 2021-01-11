@@ -39,7 +39,7 @@ clean-bench: clean-cache
 
 clean-cache:
 	@rm -f logs/*.log
-	@rm -f out/*.wav out/*.wav
+	@rm -f out/*.wav out/*.mp3
 	@rm -f msc/*.log msc/*.logcache
 	@find msc/ -type d -not \( -regex '.*/res.*' -o -regex '.*/$$' \) | xargs rm -rf
 

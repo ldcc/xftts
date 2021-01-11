@@ -16,7 +16,6 @@ import (
 )
 
 func init() {
-	_ = xf.InitServer(defFields.opts)
 	_, file, _, _ := runtime.Caller(0)
 	apppath, _ := filepath.Abs(filepath.Dir(filepath.Join(file, ".."+string(filepath.Separator))))
 	beego.TestBeegoInit(apppath)
@@ -24,12 +23,16 @@ func init() {
 
 // TestGet is a sample to run an endpoint test
 func TestSendGet(t *testing.T) {
+	err := xf.InitServer(defFields.opts)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	body := `{"txt": "请1号东风到内科门诊1号诊室就诊"}`
 	r, _ := http.NewRequest("POST", "/xftts/Once", strings.NewReader(body))
 	w := httptest.NewRecorder()
 	beego.BeeApp.Handlers.ServeHTTP(w, r)
-
-	logs.Info("testing", "TestGet", "Code[%d]\n%s", w.Code, w.Body.String())
+	logs.Info("testing", "TestGet", "Code[%d]\n%s", w.Code)
 
 	Convey("Subject: Test Station Endpoint\n", t, func() {
 		Convey("Status Code Should Be 200", func() {
@@ -39,4 +42,9 @@ func TestSendGet(t *testing.T) {
 			So(w.Body.Len(), ShouldBeGreaterThan, 0)
 		})
 	})
+
+	err = xf.TTSSrv.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
 }

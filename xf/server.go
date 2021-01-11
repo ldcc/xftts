@@ -3,7 +3,6 @@ package xf
 import (
 	"fmt"
 	"strconv"
-	"sync"
 )
 
 var (
@@ -11,35 +10,43 @@ var (
 )
 
 type Server struct {
-	locker sync.RWMutex
-
-	opts *Options
+	running bool
+	pipe    chan string
+	stop    chan struct{}
+	opts    *Options
 }
 
 func InitServer(opts *Options) error {
-	loginparams := opts.LoginParams.Format()
-	err := Login(loginparams)
-	if err != nil {
-		return err
+	if TTSSrv != nil && TTSSrv.running {
+		return nil
 	}
-	TTSSrv = &Server{opts: opts}
-	//go func() {
-	//	for {
-	//		select {
-	//
-	//		}
-	//	}
-	//}()
-	return nil
+
+	TTSSrv = &Server{
+		running: true,
+		pipe:    make(chan string),
+		stop:    make(chan struct{}),
+		opts:    opts,
+	}
+
+	go func() {
+		for {
+			select {
+			case <-TTSSrv.stop:
+				TTSSrv.running = false
+				return
+			}
+		}
+	}()
+
+	return Login(opts.LoginParams.Format())
 }
 
 func (srv *Server) Close() error {
+	srv.stop <- struct{}{}
 	return Logout()
 }
 
 func (srv *Server) Once(txt string, desPath string) error {
-	srv.locker.Lock()
-	defer func() { srv.locker.Unlock() }()
 	ttsparams := srv.opts.TTSParams.Format()
 	return TextToSpeech(txt, desPath, ttsparams)
 }
