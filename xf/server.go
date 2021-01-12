@@ -29,11 +29,18 @@ func (srv *Server) Close() error {
 	return Logout()
 }
 
-func (srv *Server) Once(txt string, desPath string) error {
+func (srv *Server) Once(txt, desPath string, voiceName ...string) error {
+	var paramCopy = srv.opts.TTSParams
+
+	if len(voiceName) > 0 && len(voiceName[0]) > 0 {
+		paramCopy.VoiceName = voiceName[0]
+	}
+	desPath = srv.opts.OutDir + desPath
+	ttsParams := paramCopy.Format()
+
 	srv.Lock()
 	defer func() { srv.Unlock() }()
-	ttsparams := srv.opts.TTSParams.Format()
-	return TextToSpeech(txt, desPath, ttsparams)
+	return TextToSpeech(txt, desPath, ttsParams)
 }
 
 type Options struct {
@@ -88,7 +95,7 @@ func (p *TTSParams) Format() string {
 type LoginParams struct {
 	Params     string // 登录参数，如果该值被指定，则忽略所有其它字段
 	Appid      string // XF 提供的 SDK-Appid
-	WordDir    string // msc 工作目录
+	WorkDir    string // msc 工作目录
 	EngineMode string // 离线引擎启动模式
 	XXXResPath string // fo|[path]|[offset]|[length]
 }
@@ -100,7 +107,7 @@ func (p *LoginParams) Format() string {
 
 	var params = &p.Params
 	appendParam("appid", p.Appid, params)
-	appendParam("work_dir", p.WordDir, params)
+	appendParam("work_dir", p.WorkDir, params)
 	appendParam("engine_start", p.EngineMode, params)
 	appendParam(p.EngineMode+"_res_path", p.XXXResPath, params)
 	return *params

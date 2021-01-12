@@ -27,7 +27,7 @@ var (
 			TTSParams: xf.TTSParams{
 				EngineType:   "local",
 				VoiceName:    "xiaomei",
-				TTSResPath:   "fo|res/tts/xiaomei.jet;fo|res/tts/common.jet",
+				TTSResPath:   "fo|res/tts/xiaomei.jet;fo|res/tts/xiaoyan.jet;fo|res/tts/common.jet",
 				Speed:        50,
 				Volume:       50,
 				Pitch:        50,
@@ -36,12 +36,14 @@ var (
 				TextEncoding: "UTF8",
 			},
 			LoginParams: xf.LoginParams{
-				Appid: "5ff5193f",
+				Appid:   "5ff5193f",
+				WorkDir: "xf",
 			},
+			OutDir: "out/",
 		}}
 	defArgs = args{
 		txt:     "请1号东风到内科门诊1号诊室就诊",
-		desPath: "out/test",
+		desPath: "test",
 	}
 )
 

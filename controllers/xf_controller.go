@@ -1,29 +1,24 @@
 package controllers
 
 import (
-	"crypto/md5"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
-	beego "github.com/beego/beego/v2/server/web"
-	"io/ioutil"
-	"xftts/models"
-	"xftts/xf"
-)
 
-const (
-	wavsuffix = ".wav"
+	beego "github.com/beego/beego/v2/server/web"
+	"xftts/models"
+	"xftts/service"
 )
 
 type XfController struct {
 	beego.Controller
 }
 
-func (c *XfController) Once() {
+func (c *XfController) MakeTTS() {
 	var (
-		req  models.Speech
+		req  models.SpeechReq
 		resp models.Resp
+		buf  []byte
 		err  error
 	)
 	defer func() {
@@ -46,28 +41,9 @@ func (c *XfController) Once() {
 		return
 	}
 
-	var (
-		desPath string
-		hash    [16]byte
-		buf     []byte
-	)
-	hash = md5.Sum([]byte(req.Txt))
-	req.Hash = hex.EncodeToString(hash[:])
-	desPath = "out/" + req.Hash + wavsuffix
-
-	err = xf.TTSSrv.Once(req.Txt, desPath)
+	buf, err = service.NewXfService().MakeTTS(&req)
 	if err != nil {
-		return
-	}
-
-	buf, err = ioutil.ReadFile(desPath)
-	if err != nil {
-		err = fmt.Errorf("获取文件失败，%v", err)
-		return
-	}
-
-	if len(buf) == 0 || err != nil {
-		err = fmt.Errorf("资源长度为空，%v", err)
+		err = fmt.Errorf("语音生成失败，%v", err)
 		return
 	}
 

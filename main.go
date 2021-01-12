@@ -44,7 +44,7 @@ Usage: xftts [options]
 `
 
 const (
-	DefTTSResPath = "fo|res/tts/xiaomei.jet;fo|res/tts/common.jet"
+	DefTTSResPath = "fo|res/tts/xiaomei.jet;fo|res/tts/xiaoyan.jet;fo|res/tts/common.jet"
 )
 
 var (
@@ -76,16 +76,17 @@ func init() {
 	flag.StringVar(&opts.LoginParams.Params, "lp", "", "登录参数")
 	flag.StringVar(&opts.Appid, "appid", "5ff5193f", "XF 提供的 SDK-Appid")
 	flag.StringVar(&opts.EngineMode, "offmode", "", "离线引擎启动模式")
-	flag.StringVar(&opts.WordDir, "word_dir", "xf", "msc 工作目录")
+	flag.StringVar(&opts.WorkDir, "work_dir", "xf", "msc 工作目录")
 	flag.StringVar(&opts.XXXResPath, "xxx_res_path", "", "离线引擎所在路径。")
 
 	// Options
-	flag.StringVar(&opts.OutDir, "d", "", "音频输出目录")
-	flag.StringVar(&opts.BackupDir, "b", "", "音频保存目录")
+	flag.StringVar(&opts.OutDir, "d", "out/", "音频输出目录")
+	flag.StringVar(&opts.BackupDir, "b", "", "音频备份目录")
 	flag.IntVar(&opts.Level, "level", 1, "音频生成速度级别，级别1~10，数字越小速度越快")
 
+	//
 	flag.StringVar(&txt, "t", "", "单次合成的文本")
-	flag.StringVar(&out, "o", "out/speech.wav", "单次合成的输出路径")
+	flag.StringVar(&out, "o", "speech.wav", "单次合成的输出路径")
 	flag.StringVar(&logFile, "l", "logs/xftts.log", "日志输出路径")
 	flag.StringVar(&logLevel, "ll", "debug", "日志输出级别")
 	flag.BoolVar(&help, "h", false, "Help")

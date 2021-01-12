@@ -13,5 +13,5 @@ import (
 )
 
 func init() {
-	beego.Router("/xftts/Once", &controllers.XfController{}, "post:Once")
+	beego.Router("/xftts/make-tts", &controllers.XfController{}, "post:MakeTTS")
 }

@@ -34,12 +34,8 @@ bench-test: $(BENCH_ONCE)
 	mkdir -p bin out
 	$(BENCH_ONCE) -test.v -test.bench BenchmarkOnce -test.run TestOnceN #^$$
 
-clean-bench: clean-cache
-	@rm -f $(BENCH_ONCE)
-
 MSC := xf/msc
 clean-cache:
-	@rm -f logs/*.log
 	@rm -f out/*.wav out/*.mp3
 	@rm -f $(MSC)/*.log $(MSC)/*.logcache
 	@find $(MSC)/ -type d -not \( -regex '.*/res.*' -o -regex '.*/$$' \) | xargs rm -rf
@@ -47,4 +43,4 @@ clean-cache:
 clean: clean-cache
 	@rm -f bin/*
 
-.PHONY: clean clean-bench clean-cache
+.PHONY: clean clean-cache
