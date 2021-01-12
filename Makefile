@@ -19,7 +19,7 @@ $(XFTTS):
 	fi
 
 serve: $(XFTTS)
-	$(XFTTS)
+	$(XFTTS) 2>&1 > logs &
 
 $(SEND_ONCE):
 	go test -work -ldflags "-s -w" -a -installsuffix cgo -c -o $(SEND_ONCE) xftts/tests
