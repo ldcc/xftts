@@ -8,7 +8,7 @@ out
 .idea
 
 # Compile cache
-logs/
+logs
 *.log
 *.logcache
 
