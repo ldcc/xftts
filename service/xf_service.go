@@ -32,21 +32,26 @@ func (srv *XfService) MakeTTS(req *models.SpeechReq) (buf []byte, err error) {
 	}
 
 	var (
+		desPath  string
 		desPaths = make([]string, len(req.Lang))
-		//desPath  string
 	)
 
 	for i, lang := range req.Lang {
 		desPaths[i], err = srv.Once(req.Txt, lang)
 		if err != nil {
-			return nil, err
+			return
 		}
 		// TODO 缓存
 	}
 
-	// TODO 合并
+	// 合成语音
+	desPath, err = srv.ConcatTTS(desPaths)
+	if err != nil {
+		err = fmt.Errorf("ffmpeg 合成语音失败，%v", err)
+		return nil, err
+	}
 
-	buf, err = ioutil.ReadFile(desPaths[0])
+	buf, err = ioutil.ReadFile(desPath)
 	if err != nil {
 		err = fmt.Errorf("获取文件失败，%v", err)
 		return
@@ -57,9 +62,10 @@ func (srv *XfService) MakeTTS(req *models.SpeechReq) (buf []byte, err error) {
 		return
 	}
 
-	return nil, err
+	return buf, err
 }
 
+// 单次语音生成
 func (srv *XfService) Once(txt, lang string) (desPath string, err error) {
 	var (
 		md5Sum    [16]byte
@@ -84,4 +90,10 @@ func (srv *XfService) Once(txt, lang string) (desPath string, err error) {
 	desPath = prefix + hexSum + wavsuffix
 
 	return desPath, xf.TTSSrv.Once(txt, desPath, voiveName)
+}
+
+// 多语种语音合成
+func (srv *XfService) ConcatTTS(desPaths []string) (desPath string, err error) {
+	// TODO
+	return desPaths[0], err
 }
