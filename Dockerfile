@@ -16,7 +16,7 @@ RUN make build
 
 #-------运行环境--------
 # 镜像文件
-FROM golang:latest
+FROM 192.168.1.30:5000/library/golang_ffmpeg:latest
 # 维护者
 MAINTAINER "412657308@qq.com"
 LABEL "describe"="科大讯飞离线tts"
