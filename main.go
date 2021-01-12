@@ -43,10 +43,6 @@ Usage: xftts [options]
     -h                          查看帮助
 `
 
-const (
-	DefTTSResPath = "fo|res/tts/xiaomei.jet;fo|res/tts/xiaoyan.jet;fo|res/tts/common.jet"
-)
-
 var (
 	opts     = &xf.Options{}
 	txt      string
@@ -61,7 +57,7 @@ func init() {
 	flag.StringVar(&opts.TTSParams.Params, "tp", "", "TTS合成参数")
 	flag.StringVar(&opts.EngineType, "engine", "local", "引擎类型")
 	flag.StringVar(&opts.VoiceName, "voice", "xiaomei", "发音人")
-	flag.StringVar(&opts.TTSResPath, "tts-res", DefTTSResPath, "离线资源所在路径")
+	flag.StringVar(&opts.TTSResPath, "tts-res", "", "离线资源所在路径")
 	flag.IntVar(&opts.Speed, "speed", 50, "语速")
 	flag.IntVar(&opts.Volume, "volume", 50, "音量")
 	flag.IntVar(&opts.Pitch, "pitch", 50, "音调")

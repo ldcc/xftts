@@ -6,13 +6,19 @@ import (
 	"sync"
 )
 
+// 发音人资源
+const (
+	TTSResPath = "fo|res/tts/"
+	ResSuffix  = ".jet"
+	CommonRes  = ";" + TTSResPath + "common" + ResSuffix
+)
+
 var (
 	TTSSrv *Server
 )
 
 type Server struct {
 	sync.Mutex
-
 	opts *Options
 }
 
@@ -34,13 +40,23 @@ func (srv *Server) Once(txt, desPath string, voiceName ...string) error {
 
 	if len(voiceName) > 0 && len(voiceName[0]) > 0 {
 		paramCopy.VoiceName = voiceName[0]
+		paramCopy.TTSResPath = TTSResPath + voiceName[0] + ResSuffix + CommonRes
 	}
+
+	if paramCopy.TTSResPath == "" {
+		paramCopy.TTSResPath = TTSResPath + srv.opts.VoiceName + ResSuffix + CommonRes
+	}
+
 	desPath = srv.opts.OutDir + desPath
 	ttsParams := paramCopy.Format()
 
 	srv.Lock()
 	defer func() { srv.Unlock() }()
 	return TextToSpeech(txt, desPath, ttsParams)
+}
+
+func (srv *Server) GetOutPutDir() string {
+	return srv.opts.OutDir
 }
 
 type Options struct {

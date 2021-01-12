@@ -33,6 +33,7 @@ func (srv *XfService) MakeTTS(req *models.SpeechReq) (buf []byte, err error) {
 	var (
 		desPath  string
 		desPaths = make([]string, len(req.Lang))
+		outDir   = xf.TTSSrv.GetOutPutDir()
 		md5Sum   = md5.Sum([]byte(req.Txt))
 		hexSum   = hex.EncodeToString(md5Sum[:])
 	)
@@ -52,7 +53,7 @@ func (srv *XfService) MakeTTS(req *models.SpeechReq) (buf []byte, err error) {
 		return nil, err
 	}
 
-	buf, err = ioutil.ReadFile(desPath)
+	buf, err = ioutil.ReadFile(outDir + desPath)
 	if err != nil {
 		err = fmt.Errorf("获取文件失败，%v", err)
 		return
@@ -95,7 +96,6 @@ func (srv *XfService) ConcatTTS(desPaths []string, hexSum string) (desPath strin
 	}
 
 	// TODO
-
 
 	return
 }

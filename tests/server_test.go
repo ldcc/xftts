@@ -27,7 +27,6 @@ var (
 			TTSParams: xf.TTSParams{
 				EngineType:   "local",
 				VoiceName:    "xiaomei",
-				TTSResPath:   "fo|res/tts/xiaomei.jet;fo|res/tts/xiaoyan.jet;fo|res/tts/common.jet",
 				Speed:        50,
 				Volume:       50,
 				Pitch:        50,
