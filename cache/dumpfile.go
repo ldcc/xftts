@@ -5,29 +5,34 @@ type DumpFile interface {
 	Extend(key string)
 }
 
-type DumpMap map[string]interface{}
+type Dump struct {
+	pipe chan string
+	dmap map[string]interface{}
+}
 
-func MakeDumpMap(pipe chan string) DumpMap {
-	var dmap = make(DumpMap)
+func NewDump() *Dump {
+	dump := new(Dump)
+	dump.pipe = make(chan string)
+	dump.dmap = make(map[string]interface{})
 	go func() {
 		for {
 			select {
-			case key := <-pipe:
-				dmap[key] = struct{}{}
+			case key := <-dump.pipe:
+				dump.dmap[key] = struct{}{}
 			}
 		}
 	}()
-	return dmap
+	return dump
 }
 
-func (dump DumpMap) Lookup(key string) interface{} {
-	val, exist := dump[key]
+func (dump *Dump) Lookup(key string) interface{} {
+	val, exist := dump.dmap[key]
 	if !exist {
 		return nil
 	}
 	return val
 }
 
-func (dump DumpMap) Extend(pipe chan string, key string) {
-	go func() { pipe <- key }()
+func (dump *Dump) Extend(key string) {
+	go func() { dump.pipe <- key }()
 }

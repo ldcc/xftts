@@ -20,19 +20,18 @@ const (
 
 	jyutprefix = "j_"
 	mandprefix = "m_"
-	wavsuffix  = ".wav"
-	mp3suffix  = ".mp3"
+
+	wavsuffix = ".wav"
+	mp3suffix = ".mp3"
 )
 
 type XfService struct {
-	pipe chan string
-	dump cache.DumpMap
+	dump cache.DumpFile
 }
 
 func NewXfService() *XfService {
 	srv := new(XfService)
-	srv.pipe = make(chan string)
-	srv.dump = cache.MakeDumpMap(srv.pipe)
+	srv.dump = cache.XfDump
 	return srv
 }
 
@@ -58,7 +57,6 @@ func (srv *XfService) MakeTTS(req *models.SpeechReq) (buf []byte, err error) {
 		if err != nil {
 			return
 		}
-		// TODO 添加 wav 缓存
 	}
 
 	if len(prefixs) == 1 {
@@ -66,9 +64,7 @@ func (srv *XfService) MakeTTS(req *models.SpeechReq) (buf []byte, err error) {
 		case err = <-done:
 			if err != nil {
 				logs.Error(err)
-				break
 			}
-			// TODO 添加 mp3 缓存
 		}
 	}
 
@@ -78,7 +74,6 @@ func (srv *XfService) MakeTTS(req *models.SpeechReq) (buf []byte, err error) {
 		err = fmt.Errorf("ffmpeg 合成语音失败，%v", err)
 		return
 	}
-	// TODO 添加 mix 缓存
 
 	buf, err = ioutil.ReadFile(mixfile)
 	if err != nil {
@@ -117,16 +112,31 @@ func (srv *XfService) Once(txt, lang, hexSum string, done chan error) (prefix st
 		return
 	}
 
-	// TODO 检查 wav 缓存
+	// 检查 wav 缓存
 	desPath = prefix + hexSum + wavsuffix
-	err = xf.TTSSrv.Once(txt, desPath, voiveName)
-	if err != nil {
-		return
+	if srv.dump.Lookup(desPath) == nil {
+		err = xf.TTSSrv.Once(txt, desPath, voiveName)
+		if err != nil {
+			return
+		}
+		// 添加 wav 缓存
+		srv.dump.Extend(desPath)
 	}
 
 	go func() {
-		// TODO 检查 mp3 缓存
-		done <- srv.ConvertMp3(prefix + hexSum)
+		var err error
+		defer func() { done <- err }()
+
+		// 检查 mp3 缓存
+		desPath = prefix + hexSum + mp3suffix
+		if srv.dump.Lookup(desPath) == nil {
+			err = srv.ConvertMp3(prefix, hexSum)
+			if err != nil {
+				return
+			}
+			// 添加 mp3 缓存
+			srv.dump.Extend(desPath)
+		}
 	}()
 
 	return
@@ -139,6 +149,7 @@ func (srv *XfService) Once(txt, lang, hexSum string, done chan error) (prefix st
 func (srv *XfService) ConcatTTS(prefixs []string, hexSum string) (mixfile string, err error) {
 	var (
 		fliter    string
+		desPath   string
 		mixprefix string
 
 		cmd    = exec.Command("ffmpeg")
@@ -151,18 +162,21 @@ func (srv *XfService) ConcatTTS(prefixs []string, hexSum string) (mixfile string
 		cmd.Args = append(cmd.Args, "-i", outDir+px+hexSum+wavsuffix)
 	}
 
-	// TODO 检查 mixfile 缓存
-	mixfile = mixprefix + hexSum + mp3suffix
+	// 检查 mixfile 缓存
+	desPath = mixprefix + hexSum + mp3suffix
+	mixfile = outDir + desPath
+	if srv.dump.Lookup(desPath) == nil {
+		fliter += fmt.Sprintf("concat=n=%d:v=0:a=1[out]", len(prefixs))
+		cmd.Args = append(cmd.Args, "-filter_complex", fliter, "-map", "[out]", mixfile)
+		cmd.Stderr = bytes.NewBuffer(nil)
 
-	mixfile = outDir + mixfile
-	fliter += fmt.Sprintf("concat=n=%d:v=0:a=1[out]", len(prefixs))
-	cmd.Args = append(cmd.Args, "-filter_complex", fliter, "-map", "[out]", "-y", mixfile)
-	cmd.Stderr = bytes.NewBuffer(nil)
-
-	err = cmd.Run()
-	if err != nil {
-		err = fmt.Errorf("拼接语音失败，%v", err)
-		return
+		err = cmd.Run()
+		if err != nil {
+			err = fmt.Errorf("拼接语音失败，%v", err)
+			return
+		}
+		// 添加 mix 缓存
+		srv.dump.Extend(desPath)
 	}
 
 	return
@@ -170,8 +184,10 @@ func (srv *XfService) ConcatTTS(prefixs []string, hexSum string) (mixfile string
 
 /**
  * wav 转码 mp3 格式
+ * ffmpeg -i a.wav b.mp3
  */
-func (srv *XfService) ConvertMp3(fn string) error {
+func (srv *XfService) ConvertMp3(prefix, hexSum string) error {
+	fn := xf.TTSSrv.GetOutPutDir() + prefix + hexSum
 	cmd := exec.Command("ffmpeg", "-i", fn+wavsuffix, fn+mp3suffix)
 	err := cmd.Run()
 	if err != nil {
