@@ -101,12 +101,13 @@ func (srv *XfService) Once(txt, lang, hexSum string) (prefix string, err error) 
 }
 
 /**
- * 多语种语音合成
+ * 多语种语音拼接
+ * ffmpeg -i a.wav -i b.wav -filter_complex [0:0][1:0]concat=n=2:v=0:a=1[out] -map [out] c.mp3
  */
 func (srv *XfService) ConcatTTS(prefixs []string, hexSum string) (fn string, err error) {
 	var (
 		fliter string
-		done   = make(chan struct{})
+		done   = make(chan error)
 		cmd    = exec.Command("ffmpeg")
 		outDir = xf.TTSSrv.GetOutPutDir()
 	)
@@ -114,11 +115,11 @@ func (srv *XfService) ConcatTTS(prefixs []string, hexSum string) (fn string, err
 	for i, px := range prefixs {
 		fn = outDir + px + hexSum
 		go func(fn string) {
-			err = srv.ConvertMp3(fn)
-			if err != nil {
-				logs.Error(err)
+			_err := srv.ConvertMp3(fn)
+			if _err != nil {
+				logs.Error(_err)
 			}
-			done <- struct{}{}
+			done <- _err
 		}(fn)
 
 		fliter += fmt.Sprintf("[%d:0]", i)
@@ -127,7 +128,7 @@ func (srv *XfService) ConcatTTS(prefixs []string, hexSum string) (fn string, err
 
 	if len(prefixs) == 1 {
 		select {
-		case <-done:
+		case err = <-done:
 			return
 		}
 	}
@@ -149,14 +150,12 @@ func (srv *XfService) ConvertMp3(fn string) error {
 	cmd := exec.Command("ffmpeg", "-i", fn+wavsuffix, fn+mp3suffix)
 	err := cmd.Run()
 	if err != nil {
-		return err
+		return fmt.Errorf("转码 mp3 格式失败，%v", err)
 	}
 	err = os.Remove(fn + wavsuffix)
 	if err != nil {
-		return err
+		return fmt.Errorf("清除原始 wav 文件失败，%v", err)
 	}
 
 	return nil
 }
-
-//ffmpeg -i a.wav -i b.wav -filter_complex [0:0][1:0]concat=n=2:v=0:a=1[out] -map [out] c.mp3
