@@ -18,7 +18,7 @@ var (
 )
 
 type Server struct {
-	sync.Mutex
+	sync.RWMutex
 	opts *Options
 }
 
