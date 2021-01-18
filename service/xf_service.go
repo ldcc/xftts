@@ -140,12 +140,16 @@ func (srv *XfService) ConcatTTS(prefixs []string, hexSum string) (fn string, err
 
 	err = cmd.Run()
 	if err != nil {
+		err = fmt.Errorf("拼接语音失败，%v", err)
 		return
 	}
 
 	return
 }
 
+/**
+ * wav 转码 mp3 格式
+ */
 func (srv *XfService) ConvertMp3(fn string) error {
 	cmd := exec.Command("ffmpeg", "-i", fn+wavsuffix, fn+mp3suffix)
 	err := cmd.Run()
