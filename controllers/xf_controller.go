@@ -26,6 +26,7 @@ func (c *XfController) MakeTTS() {
 			resp.Code = 500
 			resp.Msg = err.Error()
 			c.Data["json"] = resp
+			c.Ctx.ResponseWriter.WriteHeader(500)
 			_ = c.ServeJSON()
 		}
 	}()

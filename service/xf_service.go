@@ -167,7 +167,7 @@ func (srv *XfService) ConcatTTS(prefixs []string, hexSum string) (mixfile string
 	mixfile = outDir + desPath
 	if srv.dump.Lookup(desPath) == nil {
 		fliter += fmt.Sprintf("concat=n=%d:v=0:a=1[out]", len(prefixs))
-		cmd.Args = append(cmd.Args, "-filter_complex", fliter, "-map", "[out]", mixfile)
+		cmd.Args = append(cmd.Args, "-filter_complex", fliter, "-map", "[out]", "-y", mixfile)
 		cmd.Stderr = bytes.NewBuffer(nil)
 
 		err = cmd.Run()
@@ -188,7 +188,7 @@ func (srv *XfService) ConcatTTS(prefixs []string, hexSum string) (mixfile string
  */
 func (srv *XfService) ConvertMp3(prefix, hexSum string) error {
 	fn := xf.TTSSrv.GetOutPutDir() + prefix + hexSum
-	cmd := exec.Command("ffmpeg", "-i", fn+wavsuffix, fn+mp3suffix)
+	cmd := exec.Command("ffmpeg", "-i", fn+wavsuffix, "-y", fn+mp3suffix)
 	err := cmd.Run()
 	if err != nil {
 		return fmt.Errorf("转码 mp3 格式失败，%v", err)

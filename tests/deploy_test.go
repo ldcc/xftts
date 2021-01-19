@@ -28,11 +28,14 @@ func TestSendGet(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	body := `{"txt": "请1号东风到内科门诊1号诊室就诊, "lang":["jyut"]"}`
+	body := `{"txt": "请1号东风到内科门诊1号诊室就诊", "lang":["jyut"]}`
 	r, _ := http.NewRequest("POST", "/xftts/make-tts", strings.NewReader(body))
 	w := httptest.NewRecorder()
 	beego.BeeApp.Handlers.ServeHTTP(w, r)
-	logs.Info("testing", "TestGet", "Code[%d]\n%s", w.Code)
+	logs.Info("testing", "TestGet", "Code", w.Code)
+	if w.Code != 200 {
+		logs.Info(w.Body)
+	}
 
 	Convey("Subject: Test Station Endpoint\n", t, func() {
 		Convey("Status Code Should Be 200", func() {
