@@ -8,7 +8,7 @@ type DumpFile interface {
 }
 
 type Dump struct {
-	sync.RWMutex
+	sync.Mutex
 	dmap map[string]interface{}
 }
 
@@ -27,7 +27,7 @@ func (dump *Dump) Lookup(key string) interface{} {
 }
 
 func (dump *Dump) Extend(key string) {
-	dump.RLock()
+	dump.Lock()
 	dump.dmap[key] = struct{}{}
-	dump.RUnlock()
+	dump.Unlock()
 }
