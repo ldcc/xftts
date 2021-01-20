@@ -51,7 +51,7 @@ func (srv *Server) Once(txt, desPath string, voiceName ...string) error {
 	ttsParams := paramCopy.Format()
 
 	srv.Lock()
-	defer func() { srv.Unlock() }()
+	defer srv.Unlock()
 	return TextToSpeech(txt, desPath, ttsParams)
 }
 

@@ -19,9 +19,6 @@ const (
 
 	jyutprefix = "j_"
 	mandprefix = "m_"
-
-	wavsuffix = ".wav"
-	mp3suffix = ".mp3"
 )
 
 type XfService struct {
@@ -123,7 +120,7 @@ func (srv *XfService) Once(txt, lang, hexSum string) (prefix string, err error) 
 
 /**
  * 多语种语音拼接
- * ffmpeg -i a -i b -filter_complex [0:0][1:0]concat=n=2:v=0:a=1[out] -map [out] c
+ * ffmpeg -i a -i b -filter_complex [0:0][1:0]concat=n=2:v=0:a=1[out] -map [out] -t -f mp3 c
  */
 func (srv *XfService) ConcatTTS(prefixs []string, hexSum string) (mixfile string, err error) {
 	var (
