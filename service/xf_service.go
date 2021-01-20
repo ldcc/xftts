@@ -51,6 +51,7 @@ func (srv *XfService) MakeTTS(req *models.SpeechReq) (buf []byte, err error) {
 
 	// 语音生成
 	for i, lang := range req.Lang {
+		// TODO 跑多协程
 		prefixs[i], err = srv.Once(req.Txt, lang, hexSum)
 		if err != nil {
 			return
@@ -104,20 +105,17 @@ func (srv *XfService) Once(txt, lang, hexSum string) (prefix string, err error) 
 	// 检查 mp3 缓存
 	desPath = prefix + hexSum
 	if srv.dump.Lookup(desPath) == nil {
-		// 生成 tts
-		err = xf.TTSSrv.Once(txt, desPath, voiveName)
-		if err != nil {
-			return
-		}
-
-		// 转码 mp3
-		err = srv.ConvertMp3(desPath)
-		if err != nil {
-			return
-		}
-
 		// 缓存 mp3
-		srv.dump.Extend(desPath)
+		err = srv.dump.Extend(desPath, func() error {
+			// 生成 tts
+			_err := xf.TTSSrv.Once(txt, desPath, voiveName)
+			if _err != nil {
+				return _err
+			}
+
+			// 转码 mp3
+			return srv.ConvertMp3(desPath)
+		})
 	}
 
 	return
@@ -137,13 +135,14 @@ func (srv *XfService) ConcatTTS(prefixs []string, hexSum string) (mixfile string
 		outDir = xf.TTSSrv.GetOutPutDir()
 	)
 
+	// 拼接过滤器参数
 	for i, px := range prefixs {
 		mixprefix += px
 		fliter += fmt.Sprintf("[%d:0]", i)
 		cmd.Args = append(cmd.Args, "-i", outDir+px+hexSum)
 	}
 
-	// 检查 mixfile 缓存
+	// 检查 mix 缓存
 	desPath = mixprefix + hexSum
 	mixfile = outDir + desPath
 	if srv.dump.Lookup(desPath) == nil {
@@ -151,13 +150,14 @@ func (srv *XfService) ConcatTTS(prefixs []string, hexSum string) (mixfile string
 		cmd.Args = append(cmd.Args, "-filter_complex", fliter, "-map", "[out]", "-y", "-f", "mp3", mixfile)
 		cmd.Stderr = bytes.NewBuffer(nil)
 
-		err = cmd.Run()
-		if err != nil {
-			err = fmt.Errorf("拼接语音失败，%v", err)
-			return
-		}
-		// 添加 mix 缓存
-		srv.dump.Extend(desPath)
+		// 缓存 mix
+		err = srv.dump.Extend(desPath, func() error {
+			_err := cmd.Run()
+			if _err != nil {
+				_err = fmt.Errorf("拼接语音失败，%v\n%s", _err, cmd.String())
+			}
+			return _err
+		})
 	}
 
 	return
@@ -172,14 +172,8 @@ func (srv *XfService) ConvertMp3(desPath string) error {
 	cmd := exec.Command("ffmpeg", "-i", fn, "-y", "-f", "mp3", fn)
 	err := cmd.Run()
 	if err != nil {
-		return fmt.Errorf("转码 mp3 格式失败，%v", err)
+		err = fmt.Errorf("转码 mp3 格式失败，%v", err)
 	}
-	//go func() {
-	//	err = os.Remove(fn + wavsuffix)
-	//	if err != nil {
-	//		logs.Warning(fmt.Errorf("清除原始 wav 文件失败，%v", err))
-	//	}
-	//}()
 
 	return err
 }

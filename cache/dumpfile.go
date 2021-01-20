@@ -4,7 +4,7 @@ import "sync"
 
 type DumpFile interface {
 	Lookup(string) interface{}
-	Extend(string)
+	Extend(string, func() error) error
 }
 
 type Dump struct {
@@ -19,15 +19,21 @@ func NewDump() DumpFile {
 }
 
 func (dump *Dump) Lookup(key string) interface{} {
-	val, exist := dump.dmap[key]
-	if !exist {
-		// TODO 查找本地文件
-	}
+	val, _ := dump.dmap[key]
 	return val
 }
 
-func (dump *Dump) Extend(key string) {
+func (dump *Dump) Extend(key string, run func() error) error {
 	dump.Lock()
-	dump.dmap[key] = struct{}{}
-	dump.Unlock()
+	defer dump.Unlock()
+
+	if dump.Lookup(key) != nil {
+		return nil
+	}
+
+	err := run()
+	if err == nil {
+		dump.dmap[key] = struct{}{}
+	}
+	return err
 }
