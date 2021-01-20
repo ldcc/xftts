@@ -3,8 +3,8 @@ package cache
 import "sync"
 
 type DumpFile interface {
-	Lookup(key string) interface{}
-	Extend(key string)
+	Lookup(string) interface{}
+	Extend(string)
 }
 
 type Dump struct {
@@ -12,7 +12,7 @@ type Dump struct {
 	dmap map[string]interface{}
 }
 
-func NewDump() *Dump {
+func NewDump() DumpFile {
 	dump := new(Dump)
 	dump.dmap = make(map[string]interface{})
 	return dump

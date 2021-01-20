@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"os/exec"
 
-	"github.com/beego/beego/v2/core/logs"
 	"xftts/cache"
 	"xftts/models"
 	"xftts/xf"
@@ -48,23 +47,13 @@ func (srv *XfService) MakeTTS(req *models.SpeechReq) (buf []byte, err error) {
 		prefixs = make([]string, len(req.Lang))
 		md5Sum  = md5.Sum([]byte(req.Txt))
 		hexSum  = hex.EncodeToString(md5Sum[:])
-		done    = make(chan error)
 	)
 
 	// 语音生成
 	for i, lang := range req.Lang {
-		prefixs[i], err = srv.Once(req.Txt, lang, hexSum, done)
+		prefixs[i], err = srv.Once(req.Txt, lang, hexSum)
 		if err != nil {
 			return
-		}
-	}
-
-	if len(prefixs) == 1 {
-		select {
-		case err = <-done:
-			if err != nil {
-				logs.Error(err)
-			}
 		}
 	}
 
@@ -94,7 +83,7 @@ func (srv *XfService) MakeTTS(req *models.SpeechReq) (buf []byte, err error) {
  * 返回当此生成的语音类型
  * 语音类型用文件名前缀 `prefix` 作为标识
  */
-func (srv *XfService) Once(txt, lang, hexSum string, done chan error) (prefix string, err error) {
+func (srv *XfService) Once(txt, lang, hexSum string) (prefix string, err error) {
 	var (
 		desPath   string
 		voiveName string
@@ -112,39 +101,31 @@ func (srv *XfService) Once(txt, lang, hexSum string, done chan error) (prefix st
 		return
 	}
 
-	// 检查 wav 缓存
-	desPath = prefix + hexSum + wavsuffix
+	// 检查 mp3 缓存
+	desPath = prefix + hexSum
 	if srv.dump.Lookup(desPath) == nil {
+		// 生成 tts
 		err = xf.TTSSrv.Once(txt, desPath, voiveName)
 		if err != nil {
 			return
 		}
-		// 添加 wav 缓存
+
+		// 转码 mp3
+		err = srv.ConvertMp3(desPath)
+		if err != nil {
+			return
+		}
+
+		// 缓存 mp3
 		srv.dump.Extend(desPath)
 	}
-
-	go func() {
-		var err error
-		defer func() { done <- err }()
-
-		// 检查 mp3 缓存
-		desPath = prefix + hexSum + mp3suffix
-		if srv.dump.Lookup(desPath) == nil {
-			err = srv.ConvertMp3(prefix, hexSum)
-			if err != nil {
-				return
-			}
-			// 添加 mp3 缓存
-			srv.dump.Extend(desPath)
-		}
-	}()
 
 	return
 }
 
 /**
  * 多语种语音拼接
- * ffmpeg -i a.wav -i b.wav -filter_complex [0:0][1:0]concat=n=2:v=0:a=1[out] -map [out] c.mp3
+ * ffmpeg -i a -i b -filter_complex [0:0][1:0]concat=n=2:v=0:a=1[out] -map [out] c
  */
 func (srv *XfService) ConcatTTS(prefixs []string, hexSum string) (mixfile string, err error) {
 	var (
@@ -159,15 +140,15 @@ func (srv *XfService) ConcatTTS(prefixs []string, hexSum string) (mixfile string
 	for i, px := range prefixs {
 		mixprefix += px
 		fliter += fmt.Sprintf("[%d:0]", i)
-		cmd.Args = append(cmd.Args, "-i", outDir+px+hexSum+wavsuffix)
+		cmd.Args = append(cmd.Args, "-i", outDir+px+hexSum)
 	}
 
 	// 检查 mixfile 缓存
-	desPath = mixprefix + hexSum + mp3suffix
+	desPath = mixprefix + hexSum
 	mixfile = outDir + desPath
 	if srv.dump.Lookup(desPath) == nil {
 		fliter += fmt.Sprintf("concat=n=%d:v=0:a=1[out]", len(prefixs))
-		cmd.Args = append(cmd.Args, "-filter_complex", fliter, "-map", "[out]", "-y", mixfile)
+		cmd.Args = append(cmd.Args, "-filter_complex", fliter, "-map", "[out]", "-y", "-f", "mp3", mixfile)
 		cmd.Stderr = bytes.NewBuffer(nil)
 
 		err = cmd.Run()
@@ -184,19 +165,21 @@ func (srv *XfService) ConcatTTS(prefixs []string, hexSum string) (mixfile string
 
 /**
  * wav 转码 mp3 格式
- * ffmpeg -i a.wav b.mp3
+ * ffmpeg -i `hex` -y -f mp3 `hex`
  */
-func (srv *XfService) ConvertMp3(prefix, hexSum string) error {
-	fn := xf.TTSSrv.GetOutPutDir() + prefix + hexSum
-	cmd := exec.Command("ffmpeg", "-i", fn+wavsuffix, "-y", fn+mp3suffix)
+func (srv *XfService) ConvertMp3(desPath string) error {
+	fn := xf.TTSSrv.GetOutPutDir() + desPath
+	cmd := exec.Command("ffmpeg", "-i", fn, "-y", "-f", "mp3", fn)
 	err := cmd.Run()
 	if err != nil {
 		return fmt.Errorf("转码 mp3 格式失败，%v", err)
 	}
-	//err = os.Remove(fn + wavsuffix)
-	//if err != nil {
-	//	return fmt.Errorf("清除原始 wav 文件失败，%v", err)
-	//}
+	//go func() {
+	//	err = os.Remove(fn + wavsuffix)
+	//	if err != nil {
+	//		logs.Warning(fmt.Errorf("清除原始 wav 文件失败，%v", err))
+	//	}
+	//}()
 
-	return nil
+	return err
 }

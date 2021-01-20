@@ -13,9 +13,9 @@ $(XFTTS):
 %.wav: $(XFTTS)
 	@rm -f out/$(@F)
 	@if [ $(*D) = "." ]; then\
-		$(XFTTS) -t $(DEF_SPEECH) -o out/$(@F);\
+		$(XFTTS) -t $(DEF_SPEECH) -o $(@F);\
 	else\
-		$(XFTTS) -t $(@D) -o out/$(@F);\
+		$(XFTTS) -t $(@D) -o $(@F);\
 	fi
 
 serve: $(XFTTS)
@@ -35,7 +35,7 @@ bench-test: $(BENCH_ONCE)
 
 MSC := xf/msc
 clean-cache:
-	@rm -f out/*.wav out/*.mp3
+	@rm -f out/*
 	@rm -f $(MSC)/*.log $(MSC)/*.logcache
 	@find $(MSC)/ -type d -not \( -regex '.*/res.*' -o -regex '.*/$$' \) | xargs rm -rf
 
