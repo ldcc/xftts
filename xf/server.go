@@ -2,6 +2,7 @@ package xf
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"sync"
 )
@@ -57,6 +58,10 @@ func (srv *Server) Once(txt, desPath string, voiceName ...string) error {
 
 func (srv *Server) GetOutPutDir() string {
 	return srv.opts.OutDir
+}
+
+func (srv *Server) RemoveFile(desPath string) error {
+	return os.Remove(srv.opts.OutDir + desPath)
 }
 
 type Options struct {

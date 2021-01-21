@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os/exec"
 
+	"github.com/beego/beego/v2/core/logs"
 	"xftts/cache"
 	"xftts/models"
 	"xftts/xf"
@@ -19,6 +20,9 @@ const (
 
 	jyutprefix = "j_"
 	mandprefix = "m_"
+
+	wavsuffix = ".wav"
+	mp3suffix = ".mp3"
 )
 
 type XfService struct {
@@ -105,7 +109,7 @@ func (srv *XfService) Once(txt, lang, hexSum string) (prefix string, err error) 
 		// 缓存 mp3
 		err = srv.dump.Extend(desPath, func() error {
 			// 生成 tts
-			_err := xf.TTSSrv.Once(txt, desPath, voiveName)
+			_err := xf.TTSSrv.Once(txt, desPath+wavsuffix, voiveName)
 			if _err != nil {
 				return _err
 			}
@@ -152,6 +156,7 @@ func (srv *XfService) ConcatTTS(prefixs []string, hexSum string) (mixfile string
 			_err := cmd.Run()
 			if _err != nil {
 				_err = fmt.Errorf("拼接语音失败，%v\n%s", _err, cmd.String())
+				logs.Debug("\n" + cmd.Stderr.(*bytes.Buffer).String())
 			}
 			return _err
 		})
@@ -166,10 +171,19 @@ func (srv *XfService) ConcatTTS(prefixs []string, hexSum string) (mixfile string
  */
 func (srv *XfService) ConvertMp3(desPath string) error {
 	fn := xf.TTSSrv.GetOutPutDir() + desPath
-	cmd := exec.Command("ffmpeg", "-i", fn, "-y", "-f", "mp3", fn)
+	cmd := exec.Command("ffmpeg", "-i", fn+wavsuffix, "-y", "-f", "mp3", fn)
 	err := cmd.Run()
 	if err != nil {
-		err = fmt.Errorf("转码 mp3 格式失败，%v", err)
+		logs.Debug("\n" + cmd.Stderr.(*bytes.Buffer).String())
+		return fmt.Errorf("转码 mp3 格式失败，%v\n%s", err, cmd.String())
 	}
+
+	go func() {
+		_err := xf.TTSSrv.RemoveFile(desPath + wavsuffix)
+		if _err != nil {
+			logs.Error(fmt.Errorf("清除原始 wav 文件失败，%v", _err))
+		}
+	}()
+
 	return err
 }

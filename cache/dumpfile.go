@@ -1,7 +1,6 @@
 package cache
 
 import (
-	"github.com/beego/beego/v2/adapter/logs"
 	"sync"
 	"time"
 )
@@ -28,13 +27,13 @@ type Dump struct {
 	sync.RWMutex
 	timeout time.Duration
 	items   map[string]*DumpData
-	drop    func(string) error
+	drop    func(string)
 }
 
 /**
  * timeout 超时时间
  */
-func NewDump(timeout time.Duration, drop func(string) error) DumpFile {
+func NewDump(timeout time.Duration, drop func(string)) DumpFile {
 	dump := new(Dump)
 	dump.timeout = timeout
 	dump.items = make(map[string]*DumpData)
@@ -85,10 +84,7 @@ func (dump *Dump) clearItems(keys []string) {
 
 	for _, key := range keys {
 		delete(dump.items, key)
-		err := dump.drop(key)
-		if err != nil {
-			logs.Error(err)
-		}
+		dump.drop(key)
 	}
 }
 

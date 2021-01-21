@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/beego/beego/v2/server/web"
-	"os"
 	"time"
 	"xftts/cache"
 
@@ -127,12 +126,11 @@ func main() {
 	}
 
 	timeout := time.Duration(web.AppConfig.DefaultInt("register_ip", 2)) * time.Hour
-	cache.XfDump = cache.NewDump(timeout, func(key string) error {
-		err := os.Remove(opts.OutDir + key)
+	cache.XfDump = cache.NewDump(timeout, func(key string) {
+		err := xf.TTSSrv.RemoveFile(key)
 		if err != nil {
-			err = fmt.Errorf("删除缓存失败，%v", err)
+			logs.Error(fmt.Errorf("删除缓存失败，%v", err))
 		}
-		return err
 	})
 
 	web.Run()

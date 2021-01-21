@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/beego/beego/v2/core/logs"
 
 	beego "github.com/beego/beego/v2/server/web"
 	"xftts/models"
@@ -28,6 +29,7 @@ func (c *XfController) MakeTTS() {
 			c.Data["json"] = resp
 			c.Ctx.ResponseWriter.WriteHeader(500)
 			_ = c.ServeJSON()
+			logs.Error(err)
 		}
 	}()
 
