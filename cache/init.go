@@ -1,6 +1,6 @@
 package cache
 
 var (
-	XfDump = NewDump()
+	XfDump DumpFile
 )
 

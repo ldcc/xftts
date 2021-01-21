@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"github.com/beego/beego/v2/adapter/logs"
 	"sync"
 	"time"
 )
@@ -8,7 +9,6 @@ import (
 type DumpFile interface {
 	Lookup(string) *DumpData
 	Extend(string, func() error) error
-	Remove(string, func() error) error
 }
 
 type DumpData struct {
@@ -25,19 +25,28 @@ func (dd *DumpData) isExpired() bool {
 }
 
 type Dump struct {
-	sync.Mutex
+	sync.RWMutex
 	timeout time.Duration
-	dmap    map[string]*DumpData
+	items   map[string]*DumpData
+	drop    func(string) error
 }
 
-func NewDump(timeout time.Duration, rm func() error) DumpFile {
+/**
+ * timeout 超时时间
+ */
+func NewDump(timeout time.Duration, drop func(string) error) DumpFile {
 	dump := new(Dump)
 	dump.timeout = timeout
-	dump.dmap = make(map[string]*DumpData)
+	dump.items = make(map[string]*DumpData)
+	dump.drop = drop
 
 	go func() {
 		for {
-			return
+			<-time.After(timeout)
+			keys := dump.expiredKeys()
+			if len(keys) != 0 {
+				dump.clearItems(keys)
+			}
 		}
 	}()
 
@@ -45,14 +54,14 @@ func NewDump(timeout time.Duration, rm func() error) DumpFile {
 }
 
 func (dump *Dump) Lookup(key string) *DumpData {
-	item, ok := dump.dmap[key]
+	item, ok := dump.items[key]
 	if ok && item.isExpired() {
 		return nil
 	}
 	return item
 }
 
-func (dump *Dump) Extend(key string, run func() error) error {
+func (dump *Dump) Extend(key string, dumping func() error) error {
 	dump.Lock()
 	defer dump.Unlock()
 
@@ -60,20 +69,36 @@ func (dump *Dump) Extend(key string, run func() error) error {
 		return nil
 	}
 
-	err := run()
+	err := dumping()
 	if err == nil {
-		dump.dmap[key] = &DumpData{
+		dump.items[key] = &DumpData{
 			createdTime: time.Now(),
-			lifespan:    0,
+			lifespan:    dump.timeout,
 		}
 	}
 	return err
 }
 
-func (dump *Dump) Remove(key string, rm func() error) error {
+func (dump *Dump) clearItems(keys []string) {
 	dump.Lock()
 	defer dump.Unlock()
 
-	delete(dump.dmap, key)
-	return rm()
+	for _, key := range keys {
+		delete(dump.items, key)
+		err := dump.drop(key)
+		if err != nil {
+			logs.Error(err)
+		}
+	}
+}
+
+func (dump *Dump) expiredKeys() (keys []string) {
+	dump.RLock()
+	defer dump.RUnlock()
+	for key, itm := range dump.items {
+		if itm.isExpired() {
+			keys = append(keys, key)
+		}
+	}
+	return
 }

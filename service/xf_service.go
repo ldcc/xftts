@@ -173,9 +173,3 @@ func (srv *XfService) ConvertMp3(desPath string) error {
 	}
 	return err
 }
-
-
-//err = os.Remove(fn + wavsuffix)
-//if err != nil {
-//	return fmt.Errorf("清除原始 wav 文件失败，%v", err)
-//}

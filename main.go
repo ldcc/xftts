@@ -3,9 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/beego/beego/v2/server/web"
+	"os"
+	"time"
+	"xftts/cache"
 
 	"github.com/beego/beego/v2/adapter/logs"
-	"github.com/beego/beego/v2/server/web"
 	_ "xftts/routers"
 	"xftts/xf"
 )
@@ -122,6 +125,15 @@ func main() {
 		}
 		return
 	}
+
+	timeout := time.Duration(web.AppConfig.DefaultInt("register_ip", 2)) * time.Hour
+	cache.XfDump = cache.NewDump(timeout, func(key string) error {
+		err := os.Remove(opts.OutDir + key)
+		if err != nil {
+			err = fmt.Errorf("删除缓存失败，%v", err)
+		}
+		return err
+	})
 
 	web.Run()
 }
