@@ -52,7 +52,6 @@ func (srv *XfService) MakeTTS(req *models.SpeechReq) (buf []byte, err error) {
 
 	// 语音生成
 	for i, lang := range req.Lang {
-		// TODO 跑多协程
 		prefixs[i], err = srv.Once(req.Txt, lang, hexSum)
 		if err != nil {
 			return
@@ -147,12 +146,14 @@ func (srv *XfService) ConcatTTS(prefixs []string, hexSum string) (mixfile string
 	desPath = mixprefix + hexSum
 	mixfile = outDir + desPath
 	if srv.dump.Lookup(desPath) == nil {
+		// 拼接合成参数
 		fliter += fmt.Sprintf("concat=n=%d:v=0:a=1[out]", len(prefixs))
 		cmd.Args = append(cmd.Args, "-filter_complex", fliter, "-map", "[out]", "-y", "-f", "mp3", mixfile)
 		cmd.Stderr = bytes.NewBuffer(nil)
 
 		// 缓存 mix
 		err = srv.dump.Extend(desPath, func() error {
+			// 拼接语音
 			_err := cmd.Run()
 			if _err != nil {
 				_err = fmt.Errorf("拼接语音失败，%v\n%s", _err, cmd.String())
@@ -185,5 +186,5 @@ func (srv *XfService) ConvertMp3(desPath string) error {
 		}
 	}()
 
-	return err
+	return nil
 }

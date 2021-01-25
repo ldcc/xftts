@@ -3,11 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/beego/beego/v2/server/web"
 	"time"
 	"xftts/cache"
 
 	"github.com/beego/beego/v2/adapter/logs"
+	"github.com/beego/beego/v2/server/web"
 	_ "xftts/routers"
 	"xftts/xf"
 )
@@ -82,12 +82,12 @@ func init() {
 	flag.StringVar(&opts.BackupDir, "b", "", "音频备份目录")
 	flag.IntVar(&opts.Level, "level", 1, "音频生成速度级别，级别1~10，数字越小速度越快")
 
-	//
+	// Params
 	flag.StringVar(&txt, "t", "", "单次合成的文本")
 	flag.StringVar(&out, "o", "speech.wav", "单次合成的输出路径")
 	flag.StringVar(&logFile, "l", "logs/xftts.log", "日志输出路径")
 	flag.StringVar(&logLevel, "ll", "debug", "日志输出级别")
-	flag.BoolVar(&help, "h", false, "Help")
+	flag.BoolVar(&help, "h", false, "查看帮助")
 
 	flag.Parse()
 
