@@ -1,6 +1,5 @@
 # Xf-TextToSpeech
 
-
 ## TODO-list
 
 - [x] 粤语语音生成
@@ -86,5 +85,43 @@ const char* MSPAPI QTTSSessionBegin(const char * params,
 |离线|speed_increase  |语速增强       |通过设置此参数控制合成音频语速基数，取值范围，<br>1：正常 2：2 倍语速 4：4 倍语速|
 |离线|effect          |合成音效       |合成音频的音效，取值范围，<br>0 无音效，1 忽远忽近，2 回声，3 机器人，4 合唱，5 水下，6 混响，7 阴阳怪气|
 
+## 文件头编码格式
+
+### wave 文件头
+
+![wave-header][wave-header]
+
+#### RIFF Chunk
+
+|标签名|大小|取值|描述|
+|:---|:---:|:---:|---|
+|ChunkID|4|"RIFF"|用作 RIFF 资源交换文件标识|
+|ChunkSize|4|0~2^32|描述了除 ChunkID、ChunkSize 外对的 Chunk 总字节数，为文件总大小 `-8` 字节|
+|Format|4|"WAVE"|wave 文件标识，当为 `"WAVE"` 时至少还需要两个 Sub Chunks：__Format Chunk__、__Data Chunk__|
+
+#### Format Chunk
+
+|标签名|大小|值|描述|
+|:---|:---:|:---|---|
+|SubChunk1ID|4|"fmt "|最后一位为空白字符，音频编码格式 Chunk 的标识符|
+|SubChunk1Size|4|0~2^32|Format Chunk 的大小，一般为 16|
+|AudioFormat|2|0 or 1|表示音频数据的格式，值 1 表示数据为线性 PCM 编码|
+|NumChannels|2|1 or 2|表示音频声道数，值 1 为单声道， 2 是双声道|
+|SampleRate|4|-|采样率，每秒从连续信号中提取并组成离散信号的采样个数，用赫兹（Hz）来表示|
+|ByteRate|4|-|比特率，每秒处理的字节数，`ByteRate = SampleRate * NumChannels * BitsPerSample / 8`|
+|BlockAlign|2|-| 数据块对齐单位，单次采样的字节大小，`BlockAlign = NumChannels * BitsPerSample / 8`|
+|BitsPerSample|2|8*2^n|采样位数或采样深度，一般使用 16|
+
+#### Data Chunk
+
+|标签名|大小|值|描述|
+|:---|:---:|:---|---|
+|SubChunk2ID|4|"data"|音频数据 Chunk 的标识符|
+|SubChunk2Size|4|0~2^32|Data Chunk 的大小，PCM 音频数据域的长度|
+|data|-|-|PCM 音频数据流|
+
+### mp3-id3v2 文件头
+
 [voice-man]: [https://console.xfyun.cn/services/tts]
 [qtts-api]: xf/libs/qtts.png
+[wave-header]: xf/libs/wave-header.png

@@ -20,7 +20,7 @@ typedef struct _wave_pcm_hdr
 	short int       format_tag;             // = PCM : 1
 	short int       channels;               // = 通道数 : 1
 	int				samples_per_sec;        // = 采样率 : 8000 | 6000 | 11025 | 16000
-	int				avg_bytes_per_sec;      // = 每秒字节数 : samples_per_sec * bits_per_sample / 8
+	int				avg_bytes_per_sec;      // = 比特率 : samples_per_sec * bits_per_sample / 8
 	short int       block_align;            // = 每采样点字节数 : wBitsPerSample / 8
 	short int       bits_per_sample;        // = 量化比特数: 8 | 16
 
@@ -31,7 +31,7 @@ typedef struct _wave_pcm_hdr
 /* 默认wav音频头部数据 */
 wave_pcm_hdr default_wav_hdr =
 {
-	{ 'R', 'I', 'F', 'F' },
+	{'R', 'I', 'F', 'F'},
 	0,
 	{'W', 'A', 'V', 'E'},
 	{'f', 'm', 't', ' '},
@@ -49,7 +49,7 @@ wave_pcm_hdr default_wav_hdr =
 int text_to_speech(const char* src_text, const char* des_path, const char* params)
 {
 	int          ret          = -1;
-	FILE*        fp           = NULL;
+	FILE0000*        fp           = NULL;
 	const char*  sessionID    = NULL;
 	unsigned int audio_len    = 0;
 	wave_pcm_hdr wav_hdr      = default_wav_hdr;
