@@ -85,7 +85,9 @@ const char* MSPAPI QTTSSessionBegin(const char * params,
 |离线|speed_increase  |语速增强       |通过设置此参数控制合成音频语速基数，取值范围，<br>1：正常 2：2 倍语速 4：4 倍语速|
 |离线|effect          |合成音效       |合成音频的音效，取值范围，<br>0 无音效，1 忽远忽近，2 回声，3 机器人，4 合唱，5 水下，6 混响，7 阴阳怪气|
 
-## 文件头编码格式
+## 输出音频编码格式
+
+该规范用于对接讯飞接口输出的 pcm 数据流，可用于编写音频文件的生成：[xf/tts.h][tts.h]
 
 ### wave 文件头
 
@@ -94,7 +96,7 @@ const char* MSPAPI QTTSSessionBegin(const char * params,
 #### RIFF Chunk
 
 |标签名|大小|取值|描述|
-|:---|:---:|:---:|---|
+|:---|:---:|:---|---|
 |ChunkID|4|"RIFF"|用作 RIFF 资源交换文件标识|
 |ChunkSize|4|0~2^32|描述了除 ChunkID、ChunkSize 外对的 Chunk 总字节数，为文件总大小 `-8` 字节|
 |Format|4|"WAVE"|wave 文件标识，当为 `"WAVE"` 时至少还需要两个 Sub Chunks：__Format Chunk__、__Data Chunk__|
@@ -104,11 +106,11 @@ const char* MSPAPI QTTSSessionBegin(const char * params,
 |标签名|大小|值|描述|
 |:---|:---:|:---|---|
 |SubChunk1ID|4|"fmt "|最后一位为空白字符，音频编码格式 Chunk 的标识符|
-|SubChunk1Size|4|0~2^32|Format Chunk 的大小，一般为 16|
+|SubChunk1Size|4|0 ~ 2^32|Format Chunk 的大小，一般为 16|
 |AudioFormat|2|0 or 1|表示音频数据的格式，值 1 表示数据为线性 PCM 编码|
 |NumChannels|2|1 or 2|表示音频声道数，值 1 为单声道， 2 是双声道|
 |SampleRate|4|-|采样率，每秒从连续信号中提取并组成离散信号的采样个数，用赫兹（Hz）来表示|
-|ByteRate|4|-|比特率，每秒处理的字节数，`ByteRate = SampleRate * NumChannels * BitsPerSample / 8`|
+|ByteRate|4|-|比特率，波形文件每秒的字节数，`ByteRate = SampleRate * NumChannels * BitsPerSample / 8`|
 |BlockAlign|2|-| 数据块对齐单位，单次采样的字节大小，`BlockAlign = NumChannels * BitsPerSample / 8`|
 |BitsPerSample|2|8*2^n|采样位数或采样深度，一般使用 16|
 
@@ -120,8 +122,47 @@ const char* MSPAPI QTTSSessionBegin(const char * params,
 |SubChunk2Size|4|0~2^32|Data Chunk 的大小，PCM 音频数据域的长度|
 |data|-|-|PCM 音频数据流|
 
-### mp3-id3v2 文件头
+生成 wave 头文件后拼接 xf 的 pcm 数据流即可生成 .wav 文件了。
+
+### mepg layer3 文件头
+
+MP3 文件分为 3 部分：TAG_V2(ID3V2)，Frame，TAG_V1(ID3V1)：
+
+|Layer|描述|
+|:---|:---|
+|ID3V2|包含作曲，专辑等信息，长度不固定，ID3V1的扩展|
+|Frames|一系列的帧，个数和帧长不固定|
+|ID3V1|包含作者，作曲，专辑等信息，长度为固定 128byte|
+
+
+#### ID3V2
+
+ID3V2 由 1 个标签头、若干标签帧以及一些其它可选项组成：
+
+|标签|描述|
+|:---|:---|
+|Header|标签头，大小为固定的 10 bytes|
+|Framse|标签帧，不定长|
+
+##### 标签头由以下 4 部分组成：
+
+|Tag|大小|值|描述|
+|:---|:---|---|---|
+|id|3|"ID3"|ID3系列的标识符|
+|version|标签帧，不定长|||
+
+
+![mp3-struct][mp3-struct]
+
+
+## 资料来源
+
+- [1] <http://www.topherlee.com/software/pcm-tut-wavformat.html>
+- [2] <https://mutagen-specs.readthedocs.io/en/latest/id3/id3v2.4.0-structure.html>
+
 
 [voice-man]: [https://console.xfyun.cn/services/tts]
 [qtts-api]: xf/libs/qtts.png
 [wave-header]: xf/libs/wave-header.png
+[mp3-struct]: xf/libs/mp3-struct.png
+[tts.h]: xf/tts.h
