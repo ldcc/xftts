@@ -49,7 +49,7 @@ wave_pcm_hdr default_wav_hdr =
 int text_to_speech(const char* src_text, const char* des_path, const char* params)
 {
 	int          ret          = -1;
-	FILE0000*        fp           = NULL;
+	FILE*        fp           = NULL;
 	const char*  sessionID    = NULL;
 	unsigned int audio_len    = 0;
 	wave_pcm_hdr wav_hdr      = default_wav_hdr;
