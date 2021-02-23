@@ -85,23 +85,21 @@ const char* MSPAPI QTTSSessionBegin(const char * params,
 |离线|speed_increase  |语速增强       |通过设置此参数控制合成音频语速基数，取值范围，<br>1：正常 2：2 倍语速 4：4 倍语速|
 |离线|effect          |合成音效       |合成音频的音效，取值范围，<br>0 无音效，1 忽远忽近，2 回声，3 机器人，4 合唱，5 水下，6 混响，7 阴阳怪气|
 
-## 输出音频编码格式
+## wave 文件编码格式
 
 该规范用于对接讯飞接口输出的 pcm 数据流，可用于编写音频文件的生成：[xf/tts.h][tts.h]
 
-### wave 文件头
-
 ![wave-header][wave-header]
 
-#### RIFF Chunk
+### RIFF Chunk
 
 |标签名|大小|取值|描述|
 |:---|:---:|:---|---|
 |ChunkID|4|"RIFF"|用作 RIFF 资源交换文件标识|
-|ChunkSize|4|0~2^32|描述了除 ChunkID、ChunkSize 外对的 Chunk 总字节数，为文件总大小 `-8` 字节|
-|Format|4|"WAVE"|wave 文件标识，当为 `"WAVE"` 时至少还需要两个 Sub Chunks：__Format Chunk__、__Data Chunk__|
+|ChunkSize|4|0~2^32|描述了除 ChunkID、ChunkSize 外的 Chunk 总字节数，为文件总大小 `-8` 字节|
+|Format|4|"WAVE"|wave 文件标识，当为 `"WAVE"` 时还至少需要两个 Sub Chunks：__Format Chunk__、__Data Chunk__|
 
-#### Format Chunk
+### Format Chunk
 
 |标签名|大小|值|描述|
 |:---|:---:|:---|---|
@@ -109,12 +107,12 @@ const char* MSPAPI QTTSSessionBegin(const char * params,
 |SubChunk1Size|4|0 ~ 2^32|Format Chunk 的大小，一般为 16|
 |AudioFormat|2|0 or 1|表示音频数据的格式，值 1 表示数据为线性 PCM 编码|
 |NumChannels|2|1 or 2|表示音频声道数，值 1 为单声道， 2 是双声道|
-|SampleRate|4|-|采样率，每秒从连续信号中提取并组成离散信号的采样个数，用赫兹（Hz）来表示|
+|SampleRate|4|-|采样率，每秒从连续信号中提取并组成离散信号的采样个数，用赫兹（Hz）表示|
 |ByteRate|4|-|比特率，波形文件每秒的字节数，`ByteRate = SampleRate * NumChannels * BitsPerSample / 8`|
 |BlockAlign|2|-| 数据块对齐单位，单次采样的字节大小，`BlockAlign = NumChannels * BitsPerSample / 8`|
 |BitsPerSample|2|8*2^n|采样位数或采样深度，一般使用 16|
 
-#### Data Chunk
+### Data Chunk
 
 |标签名|大小|值|描述|
 |:---|:---:|:---|---|
@@ -124,45 +122,50 @@ const char* MSPAPI QTTSSessionBegin(const char * params,
 
 生成 wave 头文件后拼接 xf 的 pcm 数据流即可生成 .wav 文件了。
 
-### mepg layer3 文件头
+## mepg layer3 文件编码格式
 
-MP3 文件分为 3 部分：TAG_V2(ID3V2)，Frame，TAG_V1(ID3V1)：
+MP3 文件分为 3 部分：TAG_V2(ID3V2)，Frames，TAG_V1(ID3V1)：
 
 |Layer|描述|
 |:---|:---|
-|ID3V2|包含作曲，专辑等信息，长度不固定，ID3V1的扩展|
-|Frames|一系列的帧，个数和帧长不固定|
-|ID3V1|包含作者，作曲，专辑等信息，长度为固定 128byte|
+|ID3V2|包含作曲，专辑等信息，不定长，ID3V1的扩展|
+|Frames|音频的序列帧，不定长|
+|ID3V1|包含作者，作曲，专辑等信息，固定 128 字节|
 
+### ID3V2
 
-#### ID3V2
-
-ID3V2 由 1 个标签头、若干标签帧以及一些其它可选项组成：
+ID3V2 由 10 字节的标签头、若干标签帧以及一些其它可选项（以下按拼接顺序排列）组成：
 
 |标签|描述|
 |:---|:---|
-|Header|标签头，大小为固定的 10 bytes|
-|Framse|标签帧，不定长|
+|Header|标签头，固定 10 字节|
+|Extended Header|拓展头，不定长，可选项，默认不添加|
+|Frames|标签帧，不定长|
+|Padding|空白填充，不定长，可选项，默认不添加|
+|Footer|脚注，固定 10 字节，可选项，默认不添加|
 
-##### 标签头由以下 4 部分组成：
+标签头由以下部分组成：
 
 |Tag|大小|值|描述|
 |:---|:---|---|---|
-|id|3|"ID3"|ID3系列的标识符|
-|version|标签帧，不定长|||
+|ID|3|"ID3"|ID3v2 的标识符|
+|Version|2|0x04 00|前一个字节为 ID3v2的主版本，后一个字节为副版本|
+|Flags|1|0b11110000|目前只有 4 个标识位，从左到右分别是：帧不同步、扩展头、实验版标识、脚注|
+|Size|4|-|标签大小，包括标签头的 10 个字节和所有的标签帧的大小|
 
+标签帧的结构：
 
-![mp3-struct][mp3-struct]
+![chapter-frame][chapter-frame]
 
 
 ## 资料来源
 
 - [1] <http://www.topherlee.com/software/pcm-tut-wavformat.html>
 - [2] <https://mutagen-specs.readthedocs.io/en/latest/id3/id3v2.4.0-structure.html>
-
+- [3] <https://id3.org/id3v2-chapters-1.0>
 
 [voice-man]: [https://console.xfyun.cn/services/tts]
 [qtts-api]: xf/libs/qtts.png
 [wave-header]: xf/libs/wave-header.png
-[mp3-struct]: xf/libs/mp3-struct.png
+[chapter-frame]: xf/libs/chapter-frame.png
 [tts.h]: xf/tts.h

@@ -91,6 +91,7 @@ func (dump *Dump) clearItems(keys []string) {
 func (dump *Dump) expiredKeys() (keys []string) {
 	dump.RLock()
 	defer dump.RUnlock()
+
 	for key, itm := range dump.items {
 		if itm.isExpired() {
 			keys = append(keys, key)

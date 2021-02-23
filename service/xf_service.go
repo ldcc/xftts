@@ -21,6 +21,9 @@ const (
 	jyutprefix = "j_"
 	mandprefix = "m_"
 
+	jyutvoice = "xiaomei"
+	mandvoice = "xiaoyan"
+
 	wavsuffix = ".wav"
 	mp3suffix = ".mp3"
 )
@@ -93,10 +96,10 @@ func (srv *XfService) Once(txt, lang, hexSum string) (prefix string, err error) 
 	switch lang {
 	case MANDARIN:
 		prefix = mandprefix
-		voiveName = "xiaoyan"
+		voiveName = mandvoice
 	case JYUT:
 		prefix = jyutprefix
-		voiveName = "xiaomei"
+		voiveName = jyutvoice
 	default:
 		err = fmt.Errorf("不支持的语种")
 		return
