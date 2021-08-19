@@ -176,6 +176,7 @@ func (srv *XfService) ConcatTTS(prefixs []string, hexSum string) (mixfile string
 func (srv *XfService) ConvertMp3(desPath string) error {
 	fn := xf.TTSSrv.GetOutPutDir() + desPath
 	cmd := exec.Command("ffmpeg", "-i", fn+wavsuffix, "-y", "-f", "mp3", fn)
+	cmd.Stderr = bytes.NewBuffer(nil)
 	err := cmd.Run()
 	if err != nil {
 		logs.Debug("\n" + cmd.Stderr.(*bytes.Buffer).String())

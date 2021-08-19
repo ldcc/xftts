@@ -140,8 +140,8 @@ func appendParam(field, value string, src *string) {
 	}
 
 	if *src == "" {
-		*src = fmt.Sprintf("%s = %s", field, value)
+		*src = fmt.Sprintf("%s=%s", field, value)
 	} else {
-		*src = fmt.Sprintf("%s = %s, %s", field, value, *src)
+		*src = fmt.Sprintf("%s=%s,%s", field, value, *src)
 	}
 }

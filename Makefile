@@ -19,7 +19,7 @@ $(XFTTS):
 	fi
 
 serve: $(XFTTS)
-	$(XFTTS) 2>&1 > logs/std.log &
+	./$(XFTTS)
 
 sent-once:
 	go test -work -ldflags "-s -w" -a -installsuffix cgo -c -o $(SEND_ONCE) xftts/tests
@@ -28,9 +28,11 @@ sent-once:
 $(BENCH_ONCE):
 	go test -work -ldflags "-s -w" -a -installsuffix cgo -c -o $(BENCH_ONCE) xftts/tests
 
-bench-test: $(BENCH_ONCE)
+bench: $(BENCH_ONCE)
 	mkdir -p bin out
-	#$(BENCH_ONCE) -test.v -test.bench BenchmarkOnce -test.run ^$$
+	$(BENCH_ONCE) -test.v -test.bench BenchmarkOnce -test.run ^$$
+test: $(BENCH_ONCE)
+	mkdir -p bin out
 	$(BENCH_ONCE) -test.v -test.run TestOnceN
 
 MSC := xf/msc

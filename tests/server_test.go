@@ -57,16 +57,12 @@ func BenchmarkOnce(b *testing.B) {
 		b.Fatal(err)
 	}
 
-	i := 0
-	b.RunParallel(func(pb *testing.PB) {
-		for pb.Next() {
-			i++
-			desPath := bm.args.desPath + strconv.Itoa(i) + ".wav"
-			if err := xf.TTSSrv.Once(bm.args.txt, desPath); (err != nil) != bm.wantErr {
-				b.Errorf("Once() error = %v, wantErr %v", err, bm.wantErr)
-			}
+	for i := 0; i < b.N; i++ {
+		desPath := bm.args.desPath + strconv.Itoa(i) + ".wav"
+		if err := xf.TTSSrv.Once(bm.args.txt, desPath); (err != nil) != bm.wantErr {
+			b.Errorf("Once() error = %v, wantErr %v", err, bm.wantErr)
 		}
-	})
+	}
 
 	err = xf.TTSSrv.Close()
 	if err != nil {
